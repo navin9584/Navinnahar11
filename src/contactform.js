@@ -100,6 +100,7 @@ const ContactForm = ({navigation}) => {
           Submit
         </Button>
       </Card>
+      
 
     </View>
   )
