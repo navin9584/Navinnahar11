@@ -3,7 +3,7 @@ import { StyleSheet, TouchableOpacity, View, Text } from "react-native"
 import { Button, Card, TextInput } from 'react-native-paper';
 import DropDownPicker from 'react-native-dropdown-picker';
 import CheckBox from '@react-native-community/checkbox';
-import {firebase} from './config'
+import {firebase} from '../config'
 // import * as firebase from 'firebase';
 
 
