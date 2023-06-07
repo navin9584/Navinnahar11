@@ -8,13 +8,9 @@ const DataButtons = () => {
     const isFocus = useIsFocused()
     
 useEffect(()=>{
-    getData()
   },[])
   
-  const getData =async()=>{
-    const datasss=  await getfieldDatafromLoacal()
-    console.log('call on Databuttonscreen',datasss);
-  }
+
 
     function handleBackButtonClick() {
         navigation.goBack();

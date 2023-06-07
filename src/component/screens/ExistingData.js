@@ -26,14 +26,32 @@ useEffect(() => {
     BackHandler.removeEventListener('hardwareBackPress', handleBackButtonClick);
   };
 }, []);
-  useEffect(()=>{
-    getData()
-  },[])
 
-    const getData = async () => {
+useEffect(()=>{
+  getItemList()
+},[isFocus])
+
+    const getItemList = async () => {
         const getlocalfielddata = await getfieldDatafromLoacal()
         setAllData(getlocalfielddata)
+
+        try {
+          const value = await getfieldDatafromLoacal()
+          if (value !== null) {
+            setAllData(value)
+            console.log('Retrieved data:', value);
+          } else {
+            console.log('No data found.');
+          }
+        } catch (error) {
+          console.log('Error retrieving data:', error);
+        }
     }
+
+    
+
+
+    console.log('getAlldata>>>>>',getAlldata);
     const renderItem = getAlldata &&getAlldata.map((item)=>{
       return item
     })
@@ -43,32 +61,32 @@ useEffect(() => {
     })
 
     // console.log('arraydata>>',arraydata.assenblyName);
-    const countries = [
-        'Egypt',
-        'Canada',
-        'Australia',
-        'Ireland',
-        'Brazil',
-        'England',
-        'Dubai',
-        'France',
-        'Germany',
-        'Saudi Arabia',
-        'Argentina',
-        'India',
-      ];
+    // const countries = [
+    //     'Egypt',
+    //     'Canada',
+    //     'Australia',
+    //     'Ireland',
+    //     'Brazil',
+    //     'England',
+    //     'Dubai',
+    //     'France',
+    //     'Germany',
+    //     'Saudi Arabia',
+    //     'Argentina',
+    //     'India',
+    //   ];
   
-      const data = [
-        { label: 'Item 1', 'value': '1' },
-        { label: 'Item 2', value: '2' },
-        { label: 'Item 3', value: '3' },
-        { label: 'Item 4', value: '4' },
-        { label: 'Item 5', value: '5' },
-        { label: 'Item 6', value: '6' },
-        { label: 'Item 7', value: '7' },
-        { label: 'Item 8', value: '8' },
-      ];
-    console.log('data<<<<<',data[0].label);
+    //   const data = [
+    //     { label: 'Item 1', 'value': '1' },
+    //     { label: 'Item 2', value: '2' },
+    //     { label: 'Item 3', value: '3' },
+    //     { label: 'Item 4', value: '4' },
+    //     { label: 'Item 5', value: '5' },
+    //     { label: 'Item 6', value: '6' },
+    //     { label: 'Item 7', value: '7' },
+    //     { label: 'Item 8', value: '8' },
+    //   ];
+    // console.log('data<<<<<',data[0].label);
 
       const renderLabel = () => {
         if (value || isFocus) {
@@ -101,15 +119,15 @@ useEffect(() => {
           data={getAlldata}
           search
           maxHeight={300}
-          labelField="assenblyName"
-          valueField="assenblyName"
+          labelField="assemblyName"
+          valueField="assemblyName"
           placeholder={!isFocus ? 'Select Data' : '...'}
           searchPlaceholder="Search..."
           value={value}
           onFocus={() => setIsFocus(true)}
           onBlur={() => setIsFocus(false)}
           onChange={item => {
-            setValue(item.assenblyName);
+            setValue(item.assemblyName);
             setIsFocus(false);
           }}
           // renderLeftIcon={() => (
@@ -321,6 +339,7 @@ const styles = StyleSheet.create({
   },
   placeholderStyle: {
     fontSize: 16,
+    color:'black'
   },
   selectedTextStyle: {
     fontSize: 16,
