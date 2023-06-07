@@ -19,7 +19,6 @@ export const getData = async (key) => {
 
 
 export const setLoginCred = async (data) => {
-     console.log('data>>>>',data);
     let json = JSON.stringify(data);
     let saved = await setData(LOGIN_CRED_KEY, json)
     if (saved) {
@@ -33,14 +32,15 @@ export const setLoginCred = async (data) => {
 
 export const getLoginCred = async () => {
     let loginData = await getData(LOGIN_CRED_KEY)
+    console.log('logindata>>>', loginData);
     return JSON.parse(loginData)
 }
 
 
 export const setfieldDataintoLoacal = async (data) => {
    let json = JSON.stringify(data);
+   console.log('setdata>>>>>>>',json);
    let saved = await setData(FIELD_DATA_KEY, json)
-   console.log('saved>>>>>>>>',json);
    if (saved) {
        return true
    }
