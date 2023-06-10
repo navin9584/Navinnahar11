@@ -4,7 +4,7 @@ import CommonButton from '../ReusableComponent/ButtonCompo';
 
 const NewData = ({ navigation }) => {
     const onSubmit = () => {
-        navigation.navigate('FreshData')
+        navigation.navigate('FormDetails')
     }
 
     const onDoneClick = () => {

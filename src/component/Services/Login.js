@@ -95,7 +95,7 @@ const Login = ({ navigation }) => {
                     onPress={() => navigation.navigate("Signup")}>Create New Account?</Text> */}
                     
             </View>
-            <Loader modalVisible={modalVisible} setModalVisible={setModalVisible}/>
+            {/* <Loader modalVisible={modalVisible} setModalVisible={setModalVisible}/> */}
         </View>
     )
 }

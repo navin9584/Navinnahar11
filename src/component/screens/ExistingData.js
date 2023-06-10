@@ -29,12 +29,9 @@ useEffect(() => {
 
 useEffect(()=>{
   getItemList()
-},[isFocus])
+},[])
 
     const getItemList = async () => {
-        const getlocalfielddata = await getfieldDatafromLoacal()
-        setAllData(getlocalfielddata)
-
         try {
           const value = await getfieldDatafromLoacal()
           if (value !== null) {
@@ -50,58 +47,8 @@ useEffect(()=>{
 
     
 
-
-    console.log('getAlldata>>>>>',getAlldata);
-    const renderItem = getAlldata &&getAlldata.map((item)=>{
-      return item
-    })
-
-   const arraydata = renderItem && renderItem.find(item => {
-      return item
-    })
-
-    // console.log('arraydata>>',arraydata.assenblyName);
-    // const countries = [
-    //     'Egypt',
-    //     'Canada',
-    //     'Australia',
-    //     'Ireland',
-    //     'Brazil',
-    //     'England',
-    //     'Dubai',
-    //     'France',
-    //     'Germany',
-    //     'Saudi Arabia',
-    //     'Argentina',
-    //     'India',
-    //   ];
-  
-    //   const data = [
-    //     { label: 'Item 1', 'value': '1' },
-    //     { label: 'Item 2', value: '2' },
-    //     { label: 'Item 3', value: '3' },
-    //     { label: 'Item 4', value: '4' },
-    //     { label: 'Item 5', value: '5' },
-    //     { label: 'Item 6', value: '6' },
-    //     { label: 'Item 7', value: '7' },
-    //     { label: 'Item 8', value: '8' },
-    //   ];
-    // console.log('data<<<<<',data[0].label);
-
-      const renderLabel = () => {
-        if (value || isFocus) {
-          return (
-            <Text style={[styles.label, isFocus && { color: 'blue' }]}>
-              Dropdown label
-            </Text>
-          );
-        }
-        return null;
-      };
-
-
     const onDoneClick = () => {
-        navigation.navigate('FreshData')
+        navigation.navigate('FormDetails')
     }
     return(
        <View >
@@ -176,7 +123,7 @@ useEffect(()=>{
           />
         */}
       
-
+<Text>{value}</Text>
     </View>
         <CommonButton
                     title={'Done Data'}

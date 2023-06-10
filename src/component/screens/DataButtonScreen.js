@@ -34,6 +34,15 @@ useEffect(()=>{
 
     return (
         <View style={{marginTop:50}}>
+
+<CommonButton
+                title={'Fresh Data'}
+                bgColor={'#000'}
+                textColor={"#fff"}
+                customStyle={{width:'80%',height:50}}
+                onPress={() => FreshData()}
+            />
+
             <CommonButton
                 title={'Existing Data'}
                 bgColor={'#000'}
@@ -43,22 +52,21 @@ useEffect(()=>{
             />
 
             <CommonButton
-                title={'Fresh Data'}
-                bgColor={'#000'}
-                textColor={"#fff"}
-                customStyle={{width:'80%',height:50}}
-                onPress={() => FreshData()}
-            />
-            
-            <View style={{marginTop:200}}>
-            <CommonButton
                 title={'Total Data'}
                 bgColor={'#000'}
                 textColor={"#fff"}
                 customStyle={{width:'80%',height:50}}
                 // onPress={() => onpressButton()}
             />
-            </View>
+
+<CommonButton
+                title={'Sync Data'}
+                bgColor={'#000'}
+                textColor={"#fff"}
+                customStyle={{width:'80%',height:50}}
+                onPress={() => onpressExisting()}
+            />
+            
 
         </View>
     )

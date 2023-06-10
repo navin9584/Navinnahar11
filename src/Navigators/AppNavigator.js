@@ -8,10 +8,11 @@ import MainScreen from './MainScreen';
 import Login from '../component/Services/Login';
 import Signup from '../component/Services/Signup';
 import DataButtons from '../component/screens/DataButtonScreen';
-import FreshData from '../component/screens/FreshData';
+import FormDetails from '../component/screens/FormDetail';
 import Questioner from '../component/screens/Questioner';
 import LocalData from '../component/screens/ExistingData';
 import NewData from '../component/screens/NewData';
+import ListShow from '../component/screens/ListShow';
 
 const Stack = createStackNavigator();
 
@@ -23,11 +24,12 @@ const AppNavigator = () => {
         <Stack.Screen name="Login" component={Login} options={{headerShown:false}}/>
         <Stack.Screen name="Signup" component={Signup} options={{headerShown:false}}/>
         <Stack.Screen name="Home" component={Home} options={{headerShown:false, title:null}}/>
-        <Stack.Screen name="DataButtons" component={DataButtons} options={{headerShown:true,title:null}}/>
-        <Stack.Screen name="FreshData" component={FreshData} options={{headerShown:true,title:null}}/>
-        <Stack.Screen name="Questioner" component={Questioner} options={{headerShown:true,title:null}}/>
-        <Stack.Screen name="LocalData" component={LocalData} options={{headerShown:true,title:null}}/>
-        <Stack.Screen name="NewData" component={NewData} options={{headerShown:true,title:null}}/>
+        <Stack.Screen name="DataButtons" component={DataButtons} options={{headerShown:false,title:null}}/>
+        <Stack.Screen name="FormDetails" component={FormDetails} options={{headerShown:false,title:null}}/>
+        <Stack.Screen name="Questioner" component={Questioner} options={{headerShown:false,title:null}}/>
+        <Stack.Screen name="LocalData" component={LocalData} options={{headerShown:false,title:null}}/>
+        <Stack.Screen name="NewData" component={NewData} options={{headerShown:false,title:null}}/>
+        <Stack.Screen name="ListShow" component={ListShow} options={{headerShown:false,title:null}}/>
 
         {/* <Stack.Screen name="MainScreen" component={MainScreen} options={{headerShown:false}}/> */}
       </Stack.Navigator>

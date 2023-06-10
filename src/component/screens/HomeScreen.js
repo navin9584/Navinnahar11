@@ -50,7 +50,7 @@ const Home = () => {
     } else {
       setBadvillage(false)
       saveDataIntoLocal()
-      navigation.navigate('DataButtons')
+      navigation.navigate('FormDetails')
     }
 
   }
