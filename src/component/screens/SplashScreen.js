@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React,{useState,useEffect} from 'react';
-import {View,Text} from 'react-native';
+import {View,Text,Image} from 'react-native';
 import {getLoginCred,getfieldDatafromLoacal} from '../localStorage'
 
 const SplashScreen = ({navigation}) =>{
@@ -33,24 +33,22 @@ const SplashScreen = ({navigation}) =>{
               }
           }
 
-    const getData=async()=>{
+    const getData = async() =>{
         const loginData = await getLoginCred();
-        console.log('loginData>>',loginData);
         const localdataemail = loginData && loginData.email
         if(localdataemail !== '' && localdataemail !== null && localdataemail !== undefined){
-           if( localdataemail !== null && getAlldata !== undefined && getAlldata !== null){
-            navigation.navigate('FormDetails')
+           if(getAlldata !== undefined && getAlldata !== null){
+            navigation.navigate('DataButtons')
            }else{
-            navigation.navigate('Home')
+            navigation.navigate('FormDetails')
            }
-           
         }else{
             navigation.navigate('Login')
         }
     }
     return(
         <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
-            <Text>SplashScreen</Text>
+           <Image style={{height:200,width:300,resizeMode:'stretch'}} source={require('../../assets/surveyLogo.png')}/>
         </View>
     )
 }

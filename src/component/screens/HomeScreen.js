@@ -84,7 +84,7 @@ const Home = () => {
     //   navigation.navigate("");
     };
   
-    console.log('dataList>>>',dataList);
+    // console.log('dataList>>>',dataList);
 
   function handleBackButtonClick() {
     BackHandler.exitApp();

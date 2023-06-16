@@ -25,7 +25,7 @@ useEffect(()=>{
       }, []);
 
     const FreshData=()=>{
-        navigation.navigate('NewData')
+        navigation.navigate('FormDetails')
     }
 
     const onpressExisting=()=>{

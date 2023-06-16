@@ -11,6 +11,7 @@ const {width} = Dimensions.get('window');
 const LocalData =({navigation})=>{
 const [getAlldata,setAllData] = useState()
 const [value, setValue] = useState(null);
+const [badValue, setBadValue] = useState(false);
 const [isFocus, setIsFocus] = useState(false);
 
 console.log('value>>>>',value);
@@ -48,14 +49,20 @@ useEffect(()=>{
     
 
     const onDoneClick = () => {
+      if(value==null){
+        setBadValue(true)
+      }else{
+        setBadValue(false)
         navigation.navigate('FormDetails')
+      }
+        
     }
     return(
        <View >
         <View style={styles.container}>
       
     
-    {/* {renderLabel()} */}
+    {badValue === true && <Text style={{ color: "red", marginLeft: 5,bottom:5 }}>*please select value </Text>}
     {getAlldata &&
     <Dropdown
           style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
@@ -66,15 +73,15 @@ useEffect(()=>{
           data={getAlldata}
           search
           maxHeight={300}
-          labelField="assemblyName"
-          valueField="assemblyName"
+          labelField="mobile"
+          valueField="mobile"
           placeholder={!isFocus ? 'Select Data' : '...'}
           searchPlaceholder="Search..."
           value={value}
           onFocus={() => setIsFocus(true)}
           onBlur={() => setIsFocus(false)}
           onChange={item => {
-            setValue(item.assemblyName);
+            setValue(item.mobile);
             setIsFocus(false);
           }}
           // renderLeftIcon={() => (
@@ -86,7 +93,10 @@ useEffect(()=>{
           //   />
           // )}
         />
+       
 }
+
+
 
 
 {/* <SelectDropdown
@@ -123,7 +133,6 @@ useEffect(()=>{
           />
         */}
       
-<Text>{value}</Text>
     </View>
         <CommonButton
                     title={'Done Data'}

@@ -4,14 +4,21 @@ import TextInputCompo from '../ReusableComponent/TextInputCompo';
 import CommonButton from '../ReusableComponent/ButtonCompo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Loader from '../../component/ReusableComponent/Loader';
+import Geolocation from '@react-native-community/geolocation';
 import {setLoginCred} from '../localStorage'
 const Login = ({ navigation }) => {
+    const [longitude, setLongitude] = useState()
+    const [latitude, setLatitude] = useState()
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [badEmail, setBadEmail] = useState(false)
     const [badPassword, setBadPassword] = useState(false)
     const [modalVisible, setModalVisible] = useState(false);
     
+
+    Geolocation.getCurrentPosition(info => setLongitude(info.coords.longitude));
+    Geolocation.getCurrentPosition(info => setLatitude(info.coords.latitude));
+    // console.log('altitude>>>>',latitude,longitude);
     const onpressLogin = () => {
         setModalVisible(true)
         if (email == '') {
@@ -36,9 +43,11 @@ const Login = ({ navigation }) => {
     const saveDataIntoLocal = async () => {
         await setLoginCred({
             'email': email,
-            'password': password
+            'password': password,
+            'latitude': latitude,
+            'longitude':longitude
         })
-        navigation.navigate("Home");
+        navigation.navigate("FormDetails");
     }
 
     // const getData = async () => {
