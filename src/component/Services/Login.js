@@ -1,12 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, Image } from 'react-native'
+import { Text, View, Image,Alert } from 'react-native'
 import TextInputCompo from '../ReusableComponent/TextInputCompo';
 import CommonButton from '../ReusableComponent/ButtonCompo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Loader from '../../component/ReusableComponent/Loader';
 import Geolocation from '@react-native-community/geolocation';
-import {setLoginCred} from '../localStorage'
+import {setLoginCred, getLoginCred} from '../localStorage'
+import { LoginAction } from '../../redux/login';
+import { useDispatch, useSelector } from 'react-redux';
+import { checkNetworkConnectivity } from '../localStorage';
+
+import Axios from 'axios';
+import {FormListApi} from '../../redux/FormListApi';
+import {SearchDataFromListApi} from '../../redux/SearchWithVoterApi';
 const Login = ({ navigation }) => {
+    const data = useSelector(state=> state);
+    const loginData = data.loginData.data
+    const formListState = data.FormListData && data.FormListData.data && data.FormListData.data.userdata
+    const formSearchState = data.FormSearchData && data.FormSearchData.data && data.FormSearchData.data.userdata
+    const userId = loginData&&loginData.userdata && loginData.userdata.userId
+
+    const dispatch =useDispatch();
+    // console.log('data.data>>>',loginData);
     const [longitude, setLongitude] = useState()
     const [latitude, setLatitude] = useState()
     const [email, setEmail] = useState('')
@@ -19,7 +34,9 @@ const Login = ({ navigation }) => {
     Geolocation.getCurrentPosition(info => setLongitude(info.coords.longitude));
     Geolocation.getCurrentPosition(info => setLatitude(info.coords.latitude));
     // console.log('altitude>>>>',latitude,longitude);
-    const onpressLogin = () => {
+
+    const onpressLogin = async() => {
+        let hasNetwork = await checkNetworkConnectivity();
         setModalVisible(true)
         if (email == '') {
             setModalVisible(false)
@@ -31,40 +48,42 @@ const Login = ({ navigation }) => {
             setModalVisible(false)
             setBadPassword(true)
         }else{
-            setTimeout(()=>{
-                setBadPassword(false)
-                saveDataIntoLocal();
-            },2000);
-           
+            setBadPassword(false)
+            if(hasNetwork === true){
+                loginApiFunction() 
+            }
+            
         }
       
     }
+//   console.log();
+    const requestData = {
+        email: email,
+        password: password,
+      };
+        const loginApiFunction = async () => {
+             try{
+               const response = await dispatch(LoginAction(requestData))
+               console.log('response>>>',response);
+              
+               if(response.payload.error === false){
+                if(response.payload.userdata.servaystatus == 0){
+                    navigation.navigate("FormDetails")
+                }else{
+                    navigation.navigate("DataButtons")
+                } 
+               }else{
+                alert('please check your credentials')
+               }
+             }catch(error){
+                console.log(error);
+             }
+           
+            
+            
+        }
 
-    const saveDataIntoLocal = async () => {
-        await setLoginCred({
-            'email': email,
-            'password': password,
-            'latitude': latitude,
-            'longitude':longitude
-        })
-        navigation.navigate("FormDetails");
-    }
 
-    // const getData = async () => {
-    //     const getLocalCred = await getLoginCred()
-    //     console.log('getLocalCred??????',getLocalCred);
-    //     const mEmail = getLocalCred && getLocalCred.EMAIL
-    //     const mPassword =getLocalCred && getLocalCred.PASSWORD
-    //     if(email === mEmail && password === mPassword){
-    //         setModalVisible(false)
-    //         navigation.navigate("MainScreen")
-
-    //     }else{
-    //         setModalVisible(false)
-    //         alert('Credential wrong')
-    //     }
-
-    // }
     return (
         <View>
             <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 70 }}>

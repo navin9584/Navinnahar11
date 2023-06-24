@@ -5,39 +5,52 @@ import SelectDropdown from 'react-native-select-dropdown'
 import { Dropdown } from 'react-native-element-dropdown';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {getfieldDatafromLoacal } from '../localStorage';
+import {getfieldDatafromLoacal,setFilterDatafromdrodown } from '../localStorage';
+import {FormListApi} from '../../redux/FormListApi';
+import {SearchDataFromListApi} from '../../redux/SearchWithVoterApi';
 const {width} = Dimensions.get('window');
-
+import { useDispatch, useSelector } from 'react-redux';
 const LocalData =({navigation})=>{
+  const dispatch =useDispatch();
+  const data = useSelector(state=> state);
+  const loginData = data.loginData.data
+  const userId = loginData&&loginData.userdata && loginData.userdata.userId
 const [getAlldata,setAllData] = useState()
+const [allDataList,setAllDataList] = useState()
 const [value, setValue] = useState(null);
 const [badValue, setBadValue] = useState(false);
 const [isFocus, setIsFocus] = useState(false);
 
-console.log('value>>>>',value);
+ 
+// console.log('value>>>',value);
 
-function handleBackButtonClick() {
-  navigation.goBack();
-  return true;
-}
+// function handleBackButtonClick() {
+//   navigation.navigate();
+//   // return true;
+// }
 
-useEffect(() => {
-  BackHandler.addEventListener('hardwareBackPress', handleBackButtonClick);
-  return () => {
-    BackHandler.removeEventListener('hardwareBackPress', handleBackButtonClick);
-  };
-}, []);
+// useEffect(() => {
+//   BackHandler.addEventListener('hardwareBackPress', handleBackButtonClick);
+//   return () => {
+//     BackHandler.removeEventListener('hardwareBackPress', handleBackButtonClick);
+//   };
+// }, []);
 
 useEffect(()=>{
-  getItemList()
+  AllExistingDataList()
 },[])
+const saveDataIntoLocal = async () => {
+  // await setFilterDatafromdrodown(data)
+  navigation.navigate('ExistFormDetail')
+}
+
 
     const getItemList = async () => {
         try {
           const value = await getfieldDatafromLoacal()
           if (value !== null) {
             setAllData(value)
-            console.log('Retrieved data:', value);
+            // console.log('Retrieved data:', value);
           } else {
             console.log('No data found.');
           }
@@ -45,62 +58,114 @@ useEffect(()=>{
           console.log('Error retrieving data:', error);
         }
     }
-
     
+    const AllExistingDataList = async () => {
+      let datalist = []
+      try {
+          const requestData = {
+              user_id: userId,
+          };
+          const AllData = await dispatch(FormListApi(requestData))
+          const data = AllData && AllData.payload.userdata
+          datalist.push(data)
+          setAllDataList(datalist[0])
+          // console.log('allDataList>>>>',datalist);
+      } catch (error) {
+          console.log(error);
+      }
+  }
+    
+ 
 
-    const onDoneClick = () => {
+    const onDoneClick = async() => {
+      try{
       if(value==null){
         setBadValue(true)
       }else{
         setBadValue(false)
-        navigation.navigate('FormDetails')
+        const requestData = {
+              user_id: userId,
+              search:value
+            };
+        const searchData = await dispatch(SearchDataFromListApi(requestData))
+          dispatch(FormListApi({user_id: userId}))
+          // console.log('searchData>>>>///////',searchData);
+          navigation.navigate('ExistFormDetail',{data:searchData})
+
       }
+    }catch(error){
+      console.log(error);
+    }
         
     }
+
+
+
     return(
        <View >
         <View style={styles.container}>
       
     
-    {badValue === true && <Text style={{ color: "red", marginLeft: 5,bottom:5 }}>*please select value </Text>}
-    {getAlldata &&
-    <Dropdown
+    {badValue == true && <Text style={{ color: "red", marginLeft: 5,bottom:5 }}>*please select value </Text>}
+    
+    {allDataList != '' && allDataList!= undefined ?
+     <Dropdown
           style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
           placeholderStyle={styles.placeholderStyle}
           selectedTextStyle={styles.selectedTextStyle}
           inputSearchStyle={styles.inputSearchStyle}
           iconStyle={styles.iconStyle}
-          data={getAlldata}
+          data={allDataList}
           search
+          
           maxHeight={300}
-          labelField="mobile"
-          valueField="mobile"
+          labelField="votarcode"
+          valueField="votarcode"
           placeholder={!isFocus ? 'Select Data' : '...'}
           searchPlaceholder="Search..."
           value={value}
           onFocus={() => setIsFocus(true)}
           onBlur={() => setIsFocus(false)}
           onChange={item => {
-            setValue(item.mobile);
+            setValue(item.votarcode);
             setIsFocus(false);
+            setBadValue(false)
           }}
-          // renderLeftIcon={() => (
-          //   <AntDesign
-          //     style={styles.icon}
-          //     color={isFocus ? 'blue' : 'black'}
-          //     name="Safety"
-          //     size={20}
-          //   />
-          // )}
+         
+        />:
+        <Dropdown
+          style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
+          placeholderStyle={styles.placeholderStyle}
+          selectedTextStyle={styles.selectedTextStyle}
+          inputSearchStyle={styles.inputSearchStyle}
+          iconStyle={styles.iconStyle}
+          data={[]}
+          search
+          
+          maxHeight={300}
+          labelField="votarcode"
+          valueField="votarcode"
+          placeholder={!isFocus ? 'Select Data' : '...'}
+          searchPlaceholder="Search..."
+          value={value}
+          onFocus={() => setIsFocus(true)}
+          onBlur={() => setIsFocus(false)}
+          onChange={item => {
+            setValue(item.votarcode);
+            setIsFocus(false);
+            setBadValue(false)
+          }}
+         
         />
-       
 }
+        
+        
 
 
 
 
-{/* <SelectDropdown
-            data={arraydata && arraydata.assenblyName}
+ {/* <SelectDropdown
+            data={"arraydata && arraydata.assenblyName"}
             // defaultValueByIndex={1}
             // defaultValue={'Egypt'}
             onSelect={(selectedItem, index) => {
@@ -115,9 +180,9 @@ useEffect(()=>{
             }}
             buttonStyle={styles.dropdown1BtnStyle}
             buttonTextStyle={styles.dropdown1BtnTxtStyle}
-            renderDropdownIcon={isOpened => {
-              return <FontAwesome name={isOpened ? 'chevron-up' : 'chevron-down'} color={'#444'} size={18} />;
-            }}
+            // renderDropdownIcon={isOpened => {
+            //   return <FontAwesome name={isOpened ? 'chevron-up' : 'chevron-down'} color={'#444'} size={18} />;
+            // }}
             dropdownIconPosition={'right'}
             dropdownStyle={styles.dropdown1DropdownStyle}
             rowStyle={styles.dropdown1RowStyle}
@@ -127,11 +192,11 @@ useEffect(()=>{
             searchInputStyle={styles.dropdown1searchInputStyleStyle}
             searchPlaceHolder={'Search here'}
             searchPlaceHolderColor={'darkgrey'}
-            renderSearchInputLeftIcon={() => {
-              return <FontAwesome name={'search'} color={'#444'} size={18} />;
-            }}
-          />
-        */}
+            // renderSearchInputLeftIcon={() => {
+            //   return <FontAwesome name={'search'} color={'#444'} size={18} />;
+            // }}
+          /> */}
+        {/* } */}
       
     </View>
         <CommonButton

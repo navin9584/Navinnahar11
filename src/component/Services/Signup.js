@@ -4,6 +4,7 @@ import TextInputCompo from '../ReusableComponent/TextInputCompo';
 import CommonButton from '../ReusableComponent/ButtonCompo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {setLoginCred} from '../localStorage'
+import { fetchApi } from '../../redux/login';
 
 
 

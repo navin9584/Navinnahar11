@@ -3,15 +3,15 @@ import { View, Text, ScrollView, BackHandler, TouchableOpacity, StyleSheet, Link
 import CommonButton from '../ReusableComponent/ButtonCompo';
 import TextInputCompo from '../ReusableComponent/TextInputCompo';
 import CheckBox from '@react-native-community/checkbox';
-import { setfieldDataintoLoacal, getFilterDatafromdrodown } from '../localStorage';
+import { setfieldDataintoLoacal, getFilterDatafromdrodown, getfieldDatafromLoacal } from '../localStorage';
 import { Camera, useCameraDevices } from 'react-native-vision-camera';
 import Loader from '../ReusableComponent/Loader';
-import { UserFormDetailAction } from '../../redux/userFormApi';
+import { FormDetailAction } from '../../redux/FormDetailApi';
 import { checkNetworkConnectivity } from '../localStorage';
 import { useDispatch, useSelector } from 'react-redux';
 import Geolocation from '@react-native-community/geolocation';
 
-const FormDetails = ({ navigation }) => {
+const FreshData = ({ navigation }) => {
 
   const dispatch = useDispatch();
   const cameraRef = useRef(null);
@@ -25,7 +25,7 @@ const FormDetails = ({ navigation }) => {
 
   const [nariSammanYes, setNariSammanYes] = useState(false)
   const [badNariSamman, setBadNariSamman] = useState(false);
-
+  
   const [narisammanValidate, setNariSammanValidate] = useState(false)
   const [badnarisammanValidate, setBadNariSammanValidate] = useState(false)
 
@@ -80,11 +80,11 @@ const FormDetails = ({ navigation }) => {
 
 
 
-  const [buttonShow1, setButtonShow1] = useState(true)
+  const [buttonShow1, setButtonShow1] = useState(false)
   const [buttonShow2, setButtonShow2] = useState(false)
   const [buttonShow3, setButtonShow3] = useState(false)
   const [buttonShow4, setButtonShow4] = useState(false)
-  const [buttonShow5, setButtonShow5] = useState(false)
+  const [buttonShow5, setButtonShow5] = useState(true)
 
   const [dataList, setDataList] = useState([]);
   const [loading, setLoading] = useState(null)
@@ -94,12 +94,12 @@ const FormDetails = ({ navigation }) => {
 
   const [code, setCode] = useState({ selections: [] })
   const [vehicle, setVehicle] = useState({ selections: [] });
-  const [nariSamman, setNariSamman] = useState({ selections: [] })
-  const [kisanLoan, setKisanLoan] = useState({ selections: [] })
+  const [nariSamman, setNariSamman] = useState({selections: []})
+  const [kisanLoan, setKisanLoan] = useState({selections: []})
   const options = ['टू व्हीलर', 'फोर व्हीलर', 'कोई वाहन नहीं है']
   const codeOption = ['BC', 'ER', 'IP', 'FP', 'PP', 'YC', 'SC']
-  const narisammanOption = ['Yes', 'No']
-  const kisanLoanOption = ['नही', 'कांग्रेस', 'बीजेपी']
+  const narisammanOption = ['Yes','No']
+  const kisanLoanOption = ['नही','कांग्रेस','बीजेपी']
 
 
 
@@ -107,11 +107,8 @@ const FormDetails = ({ navigation }) => {
   const formData = data.formData.data
   const loginData = data.loginData.data && data.loginData.data.userdata
   const userId = loginData && loginData.userId
-
-  // console.log('formData>>>>', formData);
-
-
-
+console.log('userid>>>',userId);
+ 
   const onPressNext1 = () => {
     if (block == '') {
       setBadblock(true);
@@ -279,7 +276,7 @@ const FormDetails = ({ navigation }) => {
   const devices = useCameraDevices("wide-angle-camera")
   const device = devices.back
 
-
+  // console.log('devices>>>', JSON.stringify(devices));
   const checkPermission = useCallback(async () => {
     const permission = await Camera.requestCameraPermission()
     if (permission === 'denied') {
@@ -291,8 +288,17 @@ const FormDetails = ({ navigation }) => {
     checkPermission()
   }, [checkPermission, devices])
 
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      // The screen is focused
+      // Call any action
+      getfieldDatafromLoacal()
+      
+    });
 
-
+    // Return the function to unsubscribe from the event so it gets removed on unmount
+    return unsubscribe;
+  }, [navigation])
 
   const onSubmit = async () => {
     let hasNetwork = await checkNetworkConnectivity();
@@ -302,11 +308,14 @@ const FormDetails = ({ navigation }) => {
       navigation.navigate('DataButtons')
       // console.log('saveDataIntoLocal()');
     }else{
-      // saveDataIntoLocal()
+      saveDataIntoLocal()
       navigation.navigate('DataButtons')
       console.log('saveDataIntoLocal()');
     }
   }
+
+
+
 
 
   function handleBackButtonClick() {
@@ -323,22 +332,37 @@ const FormDetails = ({ navigation }) => {
 
   Geolocation.getCurrentPosition(info => setLongitude(info.coords.longitude));
   Geolocation.getCurrentPosition(info => setLatitude(info.coords.latitude));
-
+  
   const saveDataIntoLocal = async () => {
-    const allfieldtostore = [{
+    let dataarray = []
+    let newArray =await getfieldDatafromLoacal()
+    console.log('newarrrayayayyayyayy',newArray);
+   
+    try {
+    const allfieldtostore = {
       "block": block, 'booth': booth, 'grampanchayat': grampanchayat, 'village': village, 'toll': toll,
       "name": name, "fatherName": fatherName, "cast": cast, "age": age, "education": education, "mobile": mobile,
       "voterId": voterId, "address": address, "gender": gender, "vehicle": vehicle.selections, "group": group, "govtEmploye": govtEmploye,
       "party": party, "code": code.selections,
       "capturedPhoto": capturedPhoto, "nariSamman": nariSamman.selections, "kisanKarjMafi": kisanKarjMafi,
       "kisanKarjMafiCongress": kisanKarjMafiCongress, "kisanKarjMafiBjp": kisanKarjMafiBjp, "facebook": facebook, instagram: 'instagram', "twitter": twitter, "longitude": longitude, "latitude": latitude
-    }]
-    try {
-      const newItems = allfieldtostore
-      dataList.push(...newItems)
-      const updatedList = [...dataList];
-      await setfieldDataintoLoacal(dataList);
-      setDataList(updatedList);
+    }
+      if(newArray == null || newArray == undefined ){
+        dataarray.push(allfieldtostore)
+       await setfieldDataintoLoacal(dataarray);
+       console.log('dataarray>>>>>>>>>>>',dataarray);
+      }else{
+        newArray.push(allfieldtostore)
+       await setfieldDataintoLoacal(newArray);
+      }
+    
+      // const newItems = allfieldtostore
+      // dataList.push(...newItems)
+      // const updatedList = [...dataList];
+      //  console.log('dataList>>>', dataList);
+      //  console.log('updatedList>>>', updatedList);
+      
+      // setDataList(updatedList);
       console.log('Data saved successfully.');
     } catch (error) {
       console.log('Error saving data:', error);
@@ -356,14 +380,13 @@ const FormDetails = ({ navigation }) => {
       facebook: facebook, instagram: instagram, twitter: twitter, longitude: longitude, latitude: latitude
     }]
     const datalist = allfieldtostore && allfieldtostore[0]
-    // console.log('datalist>>',datalist);
-    dispatch(UserFormDetailAction(datalist))
+    //  console.log('datalist/////////////////////>>',datalist);
+    dispatch(FormDetailAction(datalist))
   };
 
-  // console.log('capturephoto', capturedPhoto);
 
   if (device == null) return <Loader />
-
+  // console.log('capturephoto', capturedPhoto);
   const tackPicture = async () => {
     if (cameraRef != null) {
       const photo = await cameraRef.current.takePhoto()
@@ -486,7 +509,7 @@ const FormDetails = ({ navigation }) => {
                   value={toll} />
                 {badToll === true && <Text style={{ color: "red", marginLeft: 30 }}>*Required field</Text>}
 
-                <View style={{ bottom: 30, flexDirection: 'row', justifyContent: 'space-around' }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
                   <CommonButton
                     title={'Back'}
                     bgColor={'#000'}
@@ -557,7 +580,7 @@ const FormDetails = ({ navigation }) => {
                 }
                 value={mobile} />
               {badmobile === true && <Text style={{ color: "red", marginLeft: 30 }}>*Required field</Text>}
-              <View style={{ bottom: 30, flexDirection: 'row', justifyContent: 'space-around' }}>
+              <View style={{  flexDirection: 'row', justifyContent: 'space-around' }}>
                 <CommonButton
                   title={'Back'}
                   bgColor={'#000'}
@@ -634,9 +657,9 @@ const FormDetails = ({ navigation }) => {
 
                           />
                         </View>
-
-                        <Text style={{ marginLeft: 20, fontSize: 16, fontWeight: '500', color: 'black', }}>{item}</Text>
-
+                      
+                          <Text style={{ marginLeft: 20, fontSize: 16, fontWeight: '500', color: 'black', }}>{item}</Text>
+                        
                       </View>
                     </View>
 
@@ -644,7 +667,7 @@ const FormDetails = ({ navigation }) => {
                 )
               })}
 
-
+             
               <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
                 <CommonButton
                   title={'Back'}
@@ -750,50 +773,50 @@ const FormDetails = ({ navigation }) => {
 
               <Text style={{ marginTop: 20, fontSize: 16, fontWeight: '500', color: 'black', marginLeft: 30 }}>नारी सम्मान</Text>
               {/* {badNariSamman === true && <Text style={{ color: "red", marginLeft: 30 }}>*Required field</Text>} */}
-              <View style={{ flexDirection: 'row' }}>
-                {narisammanOption.map((item) => {
-                  return (
-                    <>
-                      <View style={{ flexDirection: 'row', marginHorizontal: 20, alignItems: 'center', marginTop: 10 }}>
-                        <CheckBox
-                          disabled={false}
-                          boxType={'circle'}
-                          value={nariSamman.selections.includes(item)}
-                          onValueChange={() => handleNariSammanCheckboxChange(item)}
-                        />
-                        <Text style={{ marginLeft: 20 }}>{item}</Text>
-                      </View>
+             <View style={{flexDirection:'row'}}>
+              {narisammanOption.map((item) => {
+                return (
+                  <>
+                    <View style={{ flexDirection:'row', marginHorizontal:20, alignItems: 'center', marginTop: 10 }}>
+                  <CheckBox
+                    disabled={false}
+                    boxType={'circle'}
+                    value={nariSamman.selections.includes(item)}
+                    onValueChange={() => handleNariSammanCheckboxChange(item)}
+                  />
+                  <Text style={{ marginLeft: 20 }}>{item}</Text>
+                </View>
 
-                    </>
+                  </>
 
-                  )
-                })}
+                )
+              })}
               </View>
 
-
+            
 
               <Text style={{ marginTop: 20, fontSize: 16, fontWeight: '500', color: 'black', marginLeft: 30 }}>किसान कर्ज माफी</Text>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 }}>
+               
+              {kisanLoanOption.map((item) => {
+                return (
+                  <>
+                    <View style={{ flexDirection:'row', marginHorizontal:20, alignItems: 'center', marginTop: 10 }}>
+                  <CheckBox
+                    disabled={false}
+                    boxType={'circle'}
+                    value={kisanLoan.selections.includes(item)}
+                    onValueChange={() => handleKisanLoanCheckboxChange(item)}
+                  />
+                  <Text style={{ marginLeft: 20 }}>{item}</Text>
+                </View>
 
-                {kisanLoanOption.map((item) => {
-                  return (
-                    <>
-                      <View style={{ flexDirection: 'row', marginHorizontal: 20, alignItems: 'center', marginTop: 10 }}>
-                        <CheckBox
-                          disabled={false}
-                          boxType={'circle'}
-                          value={kisanLoan.selections.includes(item)}
-                          onValueChange={() => handleKisanLoanCheckboxChange(item)}
-                        />
-                        <Text style={{ marginLeft: 20 }}>{item}</Text>
-                      </View>
+                  </>
 
-                    </>
+                )
+              })}
 
-                  )
-                })}
-
-
+              
               </View>
 
               <View style={{ flexDirection: 'row', justifyContent: 'center', }}>
@@ -919,4 +942,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FormDetails;
+export default FreshData;

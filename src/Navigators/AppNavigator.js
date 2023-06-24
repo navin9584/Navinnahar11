@@ -10,9 +10,10 @@ import Signup from '../component/Services/Signup';
 import DataButtons from '../component/screens/DataButtonScreen';
 import FormDetails from '../component/screens/FormDetail';
 import Questioner from '../component/screens/Questioner';
-import LocalData from '../component/screens/ExistingData';
+import ExistingData from '../component/screens/ExistingData';
 import NewData from '../component/screens/NewData';
-import ListShow from '../component/screens/ListShow';
+import ExistFormDetail from '../component/screens/ExistFormDetail';
+import FreshData from '../component/screens/FreshData';
 
 const Stack = createStackNavigator();
 
@@ -27,9 +28,10 @@ const AppNavigator = () => {
         <Stack.Screen name="DataButtons" component={DataButtons} options={{headerShown:false,title:null}}/>
         <Stack.Screen name="FormDetails" component={FormDetails} options={{headerShown:false,title:null}}/>
         <Stack.Screen name="Questioner" component={Questioner} options={{headerShown:false,title:null}}/>
-        <Stack.Screen name="LocalData" component={LocalData} options={{headerShown:false,title:null}}/>
+        <Stack.Screen name="ExistingData" component={ExistingData} options={{headerShown:false,title:null}}/>
         <Stack.Screen name="NewData" component={NewData} options={{headerShown:false,title:null}}/>
-        <Stack.Screen name="ListShow" component={ListShow} options={{headerShown:false,title:null}}/>
+        <Stack.Screen name="ExistFormDetail" component={ExistFormDetail} options={{headerShown:false,title:null}}/>
+        <Stack.Screen name="FreshData" component={FreshData} options={{headerShown:false,title:null}}/>
 
         {/* <Stack.Screen name="MainScreen" component={MainScreen} options={{headerShown:false}}/> */}
       </Stack.Navigator>

@@ -15,15 +15,14 @@ const SplashScreen = ({navigation}) =>{
      
     })
     useEffect(()=>{
-        getItemList()
+        // getItemList()
       },[])
           const getItemList = async () => {
               try {
                 const value = await getfieldDatafromLoacal()
                 if (value !== null) {
                   setAllData(value)
-                //   navigation.navigate('Questioner')
-                  console.log('Retrieved data:', value);
+                
                 } else {
                     // navigation.navigate('Home')
                   console.log('No data found.');
@@ -35,12 +34,15 @@ const SplashScreen = ({navigation}) =>{
 
     const getData = async() =>{
         const loginData = await getLoginCred();
+        // console.log('locallogindata>>',loginData);
         const localdataemail = loginData && loginData.email
         if(localdataemail !== '' && localdataemail !== null && localdataemail !== undefined){
            if(getAlldata !== undefined && getAlldata !== null){
-            navigation.navigate('DataButtons')
+            navigation.navigate('Login')
+            // navigation.navigate('DataButtons')
            }else{
-            navigation.navigate('FormDetails')
+            navigation.navigate('Login')
+            // navigation.navigate('FormDetails')
            }
         }else{
             navigation.navigate('Login')
