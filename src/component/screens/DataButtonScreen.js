@@ -36,6 +36,7 @@ const DataButtons = () => {
           // Call any action
           AllExistingDataList()
           localsavedData()
+          
         });
     
         // Return the function to unsubscribe from the event so it gets removed on unmount
@@ -51,7 +52,7 @@ const DataButtons = () => {
         const getAllLocalData = await getfieldDatafromLoacal()
         setAllAsyncData(getAllLocalData)
     }
-    console.log('alllocaldata for sync',allAsyncData);
+    // console.log('alllocaldata for sync',allAsyncData);
 
     const AllExistingDataList = async () => {
         try {
@@ -76,16 +77,24 @@ const DataButtons = () => {
     }
 
     const onpressSync = async () => {
+        const getAllLocalData = await getfieldDatafromLoacal()
+        console.log('getAllLocalData>>>',getAllLocalData);
         let pushDataintoArray = []
         let hasNetwork = await checkNetworkConnectivity();
 
         if (hasNetwork === true) {
-            pushDataintoArray.push(allAsyncData)
-            console.log('pushDataintoArray', pushDataintoArray);
-            dispatch(FormDetailAction(pushDataintoArray))
-            // await clearDatafromLoacal()
+            pushDataintoArray.push(getAllLocalData)
+            console.log('pushDataintoArray', pushDataintoArray[0]);
+            // pushDataintoArray[0].map(async(item)=>{
+            //     console.log('item????',item);
+            //    const callapidata= await dispatch(FormDetailAction(item))
+            //    console.log('calapidatataatta',callapidata);
+            // })
+             dispatch(FormDetailAction(pushDataintoArray[0]))
+            //  AllExistingDataList()
+            await clearDatafromLoacal()
             // setAllAsyncData('')
-            // AllExistingDataList()
+             AllExistingDataList()
         }else{
             alert('Internet not available')
         }

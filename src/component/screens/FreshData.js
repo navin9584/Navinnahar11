@@ -3,7 +3,7 @@ import { View, Text, ScrollView, BackHandler, TouchableOpacity, StyleSheet, Link
 import CommonButton from '../ReusableComponent/ButtonCompo';
 import TextInputCompo from '../ReusableComponent/TextInputCompo';
 import CheckBox from '@react-native-community/checkbox';
-import { setfieldDataintoLoacal, getFilterDatafromdrodown, getfieldDatafromLoacal } from '../localStorage';
+import { setfieldDataintoLoacal, getFilterDatafromdrodown, getfieldDatafromLoacal ,getLoginCred} from '../localStorage';
 import { Camera, useCameraDevices } from 'react-native-vision-camera';
 import Loader from '../ReusableComponent/Loader';
 import { FormDetailAction } from '../../redux/FormDetailApi';
@@ -80,11 +80,11 @@ const FreshData = ({ navigation }) => {
 
 
 
-  const [buttonShow1, setButtonShow1] = useState(false)
+  const [buttonShow1, setButtonShow1] = useState(true)
   const [buttonShow2, setButtonShow2] = useState(false)
   const [buttonShow3, setButtonShow3] = useState(false)
   const [buttonShow4, setButtonShow4] = useState(false)
-  const [buttonShow5, setButtonShow5] = useState(true)
+  const [buttonShow5, setButtonShow5] = useState(false)
 
   const [dataList, setDataList] = useState([]);
   const [loading, setLoading] = useState(null)
@@ -108,6 +108,8 @@ const FreshData = ({ navigation }) => {
   const loginData = data.loginData.data && data.loginData.data.userdata
   const userId = loginData && loginData.userId
 console.log('userid>>>',userId);
+
+
  
   const onPressNext1 = () => {
     if (block == '') {
@@ -293,8 +295,15 @@ console.log('userid>>>',userId);
       // The screen is focused
       // Call any action
       getfieldDatafromLoacal()
+      getData()
       
     });
+
+    const getData = async() =>{
+      const loginData = await getLoginCred();
+      console.log('locallogindata>>',loginData);
+      
+    }
 
     // Return the function to unsubscribe from the event so it gets removed on unmount
     return unsubscribe;
@@ -304,7 +313,7 @@ console.log('userid>>>',userId);
     let hasNetwork = await checkNetworkConnectivity();
     console.log('hasNetwork??????', hasNetwork);
     if (hasNetwork === true) {
-      saveApiData()
+      saveDataIntoLocal()
       navigation.navigate('DataButtons')
       // console.log('saveDataIntoLocal()');
     }else{
@@ -340,12 +349,12 @@ console.log('userid>>>',userId);
    
     try {
     const allfieldtostore = {
-      "block": block, 'booth': booth, 'grampanchayat': grampanchayat, 'village': village, 'toll': toll,
+      "user_id": loginData.userId,"block": block, 'booth': booth, 'grampanchayat': grampanchayat, 'village': village, 'toll': toll,
       "name": name, "fatherName": fatherName, "cast": cast, "age": age, "education": education, "mobile": mobile,
       "voterId": voterId, "address": address, "gender": gender, "vehicle": vehicle.selections, "group": group, "govtEmploye": govtEmploye,
       "party": party, "code": code.selections,
-      "capturedPhoto": capturedPhoto, "nariSamman": nariSamman.selections, "kisanKarjMafi": kisanKarjMafi,
-      "kisanKarjMafiCongress": kisanKarjMafiCongress, "kisanKarjMafiBjp": kisanKarjMafiBjp, "facebook": facebook, instagram: 'instagram', "twitter": twitter, "longitude": longitude, "latitude": latitude
+      "capturedPhoto": capturedPhoto, "nariSamman": nariSamman.selections, 
+      "kisanLoan": kisanLoan,  "facebook": facebook, instagram: 'instagram', "twitter": twitter, "longitude": longitude, "latitude": latitude
     }
       if(newArray == null || newArray == undefined ){
         dataarray.push(allfieldtostore)

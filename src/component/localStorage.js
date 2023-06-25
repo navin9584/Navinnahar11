@@ -61,7 +61,7 @@ export const getfieldDatafromLoacal = async () => {
 
 export const clearDatafromLoacal = async () => {
     try {
-        await AsyncStorage.clear();
+        await erasesetData(FIELD_DATA_KEY);
         console.log('clear');
        } catch (e) {
         console.log('AsyncStorage Error', e);

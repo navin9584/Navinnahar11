@@ -4,7 +4,7 @@ import { View, Text, ScrollView, BackHandler, TouchableOpacity, StyleSheet, Link
 import CommonButton from '../ReusableComponent/ButtonCompo';
 import TextInputCompo from '../ReusableComponent/TextInputCompo';
 import CheckBox from '@react-native-community/checkbox';
-import { getFilterDatafromdrodown } from '../localStorage';
+import { getFilterDatafromdrodown,getfieldDatafromLoacal } from '../localStorage';
 import { Camera, useCameraDevices } from 'react-native-vision-camera';
 import Loader from '../ReusableComponent/Loader';
 import { useDispatch, useSelector } from 'react-redux';
@@ -20,7 +20,7 @@ const ExistFormDetail = ({ navigation,route }) => {
 
   // console.log('value>>>>', value);
   const param =  route.params
-  // console.log('param>>>>',param);
+  console.log('param>>>>',param);
 
   function handleBackButtonClick() {
     navigation.goBack();
@@ -226,6 +226,7 @@ const ExistFormDetail = ({ navigation,route }) => {
   useEffect(() => {
     // getFilterDatafromLocal()
   }, [])
+  
 
   const getFilterDatafromLocal = async () => {
     try {
@@ -429,7 +430,7 @@ const ExistFormDetail = ({ navigation,route }) => {
     // console.log('hasNetwork??????', hasNetwork);
     if (hasNetwork === true) {
       // console.log('saveApiData()');
-      saveApiData()
+      saveDataIntoLocal()
       navigation.push('DataButtons')
     } else {
       console.log('saveDataIntoLocal()');
@@ -440,22 +441,35 @@ const ExistFormDetail = ({ navigation,route }) => {
 
 
   const saveDataIntoLocal = async () => {
-    const allfieldtostore = [{
-      "block": block, 'booth': booth, 'grampanchayat': grampanchayat, 'village': village, 'toll': toll,
-      "name": name, "fathername": fatherName, "cast": cast, "age": age, "education": education, "mobile": mobile,
-      "voterId": voterId, "address": address, "gender": gender, "vehicle": vehicle, "group": group, "govtEmploye": govtEmploye,
-      "party": party, "BC": toggleCheckBoxBC, "ER": toggleCheckBoxER, "FP": toggleCheckBoxFP, "IP": toggleCheckBoxIP, "PP": toggleCheckBoxPP, "SC": toggleCheckBoxSC, "YC": toggleCheckBoxYC,
-      "capturedPhoto": capturedPhoto, "twoWheeler": twoWheeler, "fourWheeler": fourWheeler, "noWheeler": noWheeler, "nariSammanNo": nariSammanNo, "nariSammanYes": nariSammanYes, "kisanKarjMafi": kisanKarjMafi,
-      "kisanKarjMafiCongress": kisanKarjMafiCongress, "kisanKarjMafiBjp": kisanKarjMafiBjp, "facebook": facebook, instagram: 'instagram', "twitter": twitter, "longitude": longitude, "latitude": latitude
-    }]
+    let dataarray = []
+    let newArray =await getfieldDatafromLoacal()
+    console.log('newarrrayayayyayyayy',newArray);
+   
     try {
-      const newItems = allfieldtostore
-      dataList.push(...newItems)
-      const updatedList = [...dataList];
-      // console.log('dataList>>>', dataList);
-      // console.log('newItems>>>', newItems);
-      await setfieldDataintoLoacal(dataList);
-      setDataList(updatedList);
+    const allfieldtostore = {
+      "user_id": filterData[0].userId,"block": block, 'booth': booth, 'grampanchayat': grampanchayat, 'village': village, 'toll': toll,
+      "name": name, "fatherName": fatherName, "cast": cast, "age": age, "education": education, "mobile": mobile,
+      "voterId": voterId, "address": address, "gender": gender, "vehicle": vehicle.selections, "group": group, "govtEmploye": govtEmploye,
+      "party": party, "code": code.selections,
+      "capturedPhoto": capturedPhoto, "nariSamman": nariSamman.selections, 
+      "kisanLoan": kisanLoan, "facebook": facebook, instagram: 'instagram', "twitter": twitter, "longitude": longitude, "latitude": latitude
+    }
+      if(newArray == null || newArray == undefined ){
+        dataarray.push(allfieldtostore)
+       await setfieldDataintoLoacal(dataarray);
+       console.log('dataarray>>>>>>>>>>>',dataarray);
+      }else{
+        newArray.push(allfieldtostore)
+       await setfieldDataintoLoacal(newArray);
+      }
+    
+      // const newItems = allfieldtostore
+      // dataList.push(...newItems)
+      // const updatedList = [...dataList];
+      //  console.log('dataList>>>', dataList);
+      //  console.log('updatedList>>>', updatedList);
+      
+      // setDataList(updatedList);
       console.log('Data saved successfully.');
     } catch (error) {
       console.log('Error saving data:', error);
@@ -465,11 +479,11 @@ const ExistFormDetail = ({ navigation,route }) => {
   const saveApiData = async () => {
     const allfieldtostore = [{
       user_id: userId, block: block, booth: booth, grampanchayat: grampanchayat, village: village, toll: toll,
-      name: name, fathername: fatherName, cast: cast, age: age, education: education, mobile: mobile,
-      voterId: voterId, address: address, gender: gender, vehicle: vehicle, group: group, govtEmploye: govtEmploye,
-      party: party, BC: toggleCheckBoxBC, ER: toggleCheckBoxER, FP: toggleCheckBoxFP, IP: toggleCheckBoxIP, PP: toggleCheckBoxPP, SC: toggleCheckBoxSC, YC: toggleCheckBoxYC,
-      capturedPhoto: capturedPhoto, twoWheeler: twoWheeler, fourWheeler: fourWheeler, noWheeler: noWheeler, nariSammanNo: nariSammanNo, nariSammanYes: nariSammanYes, kisanKarjMafi: kisanKarjMafi,
-      kisanKarjMafiCongress: kisanKarjMafiCongress, kisanKarjMafiBjp: kisanKarjMafiBjp, facebook: facebook, instagram: instagram, twitter: twitter, longitude: longitude, latitude: latitude
+      name: name, fatherName: fatherName, cast: cast, age: age, education: education, mobile: mobile,
+      voterId: voterId, address: address, gender: gender, vehicle: vehicle.selections, group: group, govtEmploye: govtEmploye,
+      party: party, code: code.selections,
+      capturedPhoto: capturedPhoto, nariSamman: nariSamman.selections, kisanLoan: kisanLoan.selections,
+      facebook: facebook, instagram: instagram, twitter: twitter, longitude: longitude, latitude: latitude
     }]
     const datalist = allfieldtostore && allfieldtostore[0]
     // console.log('datalist>>',datalist);

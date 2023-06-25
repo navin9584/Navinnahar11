@@ -1,48 +1,52 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 
 export const FormDetailAction = createAsyncThunk('FormDetailAction', async (data) => {
-    console.log('dataMMMMMMMMMM',data);
+    console.log('dataMMMMMMMMMMlocaLLLLL',data);
+    const value = data 
+  
     try{
+        
+        data && data.map(async(value)=>{
+            console.log('value>>>>>',value);
     const formData = new FormData();
-    formData.append('user_id',  data.user_id);
-    formData.append('block_name_number',  data.block);
-    formData.append('booth_name_number',  data.booth);
-    formData.append('grampanchayat',  data.grampanchayat);
-    formData.append('village',  data.village);
-    formData.append('toll',  data.toll);
-    formData.append('name',  data.name);
-    formData.append('fathername',  data.fatherName);
-    formData.append('jaati',  data.cast);
-    formData.append('age',  data.age);
-    formData.append('education',  data.education);
-    formData.append('mobile',  data.mobile);
-    formData.append('votarcode',  data.voterId);
-    formData.append('address',  data.address);
-    formData.append('gender',  data.gender);
-    formData.append('vehicle',  data.vehicle);
-    formData.append('group',  data.group);
-    formData.append('government_employee',  data.govtEmploye);
-    formData.append('parti',  data.party);
-    formData.append('code',  data.code);
-    formData.append('respect_for_women', data.nariSamman);
-    formData.append('farmer_loan_waiver', data.kisanLoan);
-    formData.append('image',  data.capturedPhoto);
-    formData.append('lat',  data.latitude);
-    formData.append('long',  data.longitude);
-    formData.append('facebook',  data.facebook);
-    formData.append('twitter',  data.twitter);
-    formData.append('instagram',  data.instagram);
-    // console.log('data>>>>>', formData);
-    
-    let obj = {
+    formData.append('user_id',  value.user_id);
+    formData.append('block_name_number',  value.block);
+    formData.append('booth_name_number',  value.booth);
+    formData.append('grampanchayat',  value.grampanchayat);
+    formData.append('village',  value.village);
+    formData.append('toll',  value.toll);
+    formData.append('name',  value.name);
+    formData.append('fathername',  value.fatherName);
+    formData.append('jaati',  value.cast);
+    formData.append('age',  value.age);
+    formData.append('education',  value.education);
+    formData.append('mobile',  value.mobile);
+    formData.append('votarcode',  value.voterId);
+    formData.append('address',  value.address);
+    formData.append('gender',  value.gender);
+    formData.append('vehicle',  value.vehicle);
+    formData.append('group',  value.group);
+    formData.append('government_employee',  value.govtEmploye);
+    formData.append('parti',  value.party);
+    formData.append('code',  value.code);
+    formData.append('respect_for_women', value.nariSamman);
+    formData.append('farmer_loan_waiver', value.kisanLoan);
+    formData.append('image',  value.capturedPhoto);
+    formData.append('lat',  value.latitude);
+    formData.append('long',  value.longitude);
+    formData.append('facebook',  value.facebook);
+    formData.append('twitter',  value.twitter);
+    formData.append('instagram',  value.instagram);
+     let obj = {
         method: 'POST',
         body: formData,
       };
-     
-    const res = await fetch('https://framedekho.in/servayapp/Api/servaydata', obj);
+      const res = await fetch('https://framedekho.in/servayapp/Api/servaydata', obj);
     const result = await res.json()
     console.log('response>>>>', result);
     return result;
+})
+    // console.log('data>>>>>', formData)
     }catch(error){
         console.log('error>>>>',error)
     }

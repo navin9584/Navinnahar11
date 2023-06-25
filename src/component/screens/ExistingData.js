@@ -22,20 +22,31 @@ const [badValue, setBadValue] = useState(false);
 const [isFocus, setIsFocus] = useState(false);
 
  
-// console.log('value>>>',value);
+// console.log('allDataList>>>',allDataList);
 
-// function handleBackButtonClick() {
-//   navigation.navigate();
-//   // return true;
-// }
+function handleBackButtonClick() {
+  navigation.goBack();
+  return true;
+}
 
-// useEffect(() => {
-//   BackHandler.addEventListener('hardwareBackPress', handleBackButtonClick);
-//   return () => {
-//     BackHandler.removeEventListener('hardwareBackPress', handleBackButtonClick);
-//   };
-// }, []);
+useEffect(() => {
+  BackHandler.addEventListener('hardwareBackPress', handleBackButtonClick);
+  return () => {
+    BackHandler.removeEventListener('hardwareBackPress', handleBackButtonClick);
+  };
+}, []);
 
+useEffect(() => {
+  const unsubscribe = navigation.addListener('focus', () => {
+    // The screen is focused
+    // Call any action
+    AllExistingDataList()
+    
+  });
+
+  // Return the function to unsubscribe from the event so it gets removed on unmount
+  return unsubscribe;
+}, [navigation])
 useEffect(()=>{
   AllExistingDataList()
 },[])
@@ -69,7 +80,7 @@ const saveDataIntoLocal = async () => {
           const data = AllData && AllData.payload.userdata
           datalist.push(data)
           setAllDataList(datalist[0])
-          // console.log('allDataList>>>>',datalist);
+          console.log('allDataList>>>>',datalist);
       } catch (error) {
           console.log(error);
       }
