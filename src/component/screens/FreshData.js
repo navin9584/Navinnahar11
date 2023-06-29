@@ -10,6 +10,7 @@ import { FormDetailAction } from '../../redux/FormDetailApi';
 import { checkNetworkConnectivity } from '../localStorage';
 import { useDispatch, useSelector } from 'react-redux';
 import Geolocation from '@react-native-community/geolocation';
+import { FormListApi } from '../../redux/FormListApi';
 
 const FreshData = ({ navigation }) => {
 
@@ -290,36 +291,30 @@ console.log('userid>>>',userId);
     checkPermission()
   }, [checkPermission, devices])
 
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      // The screen is focused
-      // Call any action
-      getfieldDatafromLoacal()
-      getData()
-      
-    });
+  useEffect(()=>{
+    getfieldDatafromLoacal()
+    getData()
+  },[])
 
-    const getData = async() =>{
-      const loginData = await getLoginCred();
-      console.log('locallogindata>>',loginData);
-      
-    }
+  const getData = async() =>{
+    const loginData = await getLoginCred();
+    console.log('locallogindata>>',loginData);
+    
+  }
 
-    // Return the function to unsubscribe from the event so it gets removed on unmount
-    return unsubscribe;
-  }, [navigation])
+
 
   const onSubmit = async () => {
     let hasNetwork = await checkNetworkConnectivity();
     console.log('hasNetwork??????', hasNetwork);
     if (hasNetwork === true) {
-      saveDataIntoLocal()
-      navigation.navigate('DataButtons')
+      saveApiData()
+     
       // console.log('saveDataIntoLocal()');
     }else{
       saveDataIntoLocal()
       navigation.navigate('DataButtons')
-      console.log('saveDataIntoLocal()');
+      // console.log('saveDataIntoLocal()');
     }
   }
 
@@ -388,10 +383,24 @@ console.log('userid>>>',userId);
       capturedPhoto: capturedPhoto, nariSamman: nariSamman.selections, kisanLoan: kisanLoan.selections,
       facebook: facebook, instagram: instagram, twitter: twitter, longitude: longitude, latitude: latitude
     }]
-    const datalist = allfieldtostore && allfieldtostore[0]
-    //  console.log('datalist/////////////////////>>',datalist);
+    const datalist = allfieldtostore
+    console.log('datalist/////////////////////>>',datalist);
     dispatch(FormDetailAction(datalist))
+    AllExistingDataList()
+    navigation.navigate('DataButtons')
   };
+
+  const AllExistingDataList = async () => {
+    try {
+        const requestData = {
+            user_id: userId,
+        };
+         await dispatch(FormListApi(requestData))
+        // setListCount(AllData.payload.totalrow)
+    } catch (error) {
+        console.log(error);
+    }
+}
 
 
   if (device == null) return <Loader />

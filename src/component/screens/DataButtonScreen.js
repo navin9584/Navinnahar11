@@ -12,9 +12,12 @@ const DataButtons = () => {
     const dispatch = useDispatch();
     const data = useSelector(state => state);
     const loginData = data.loginData.data
+    const totalcount = data.FormListData && data.FormListData.data && data.FormListData.data.totalrow
     const [listCount, setListCount] = useState()
     const userId = loginData && loginData.userdata && loginData.userdata.userId
     const [allAsyncData, setAllAsyncData] = useState()
+    console.log('data???????????',data
+    );
      
 
     
@@ -30,43 +33,29 @@ const DataButtons = () => {
         };
     }, []);
 
-    useEffect(() => {
-        const unsubscribe = navigation.addListener('focus', () => {
-          // The screen is focused
-          // Call any action
-          AllExistingDataList()
-          localsavedData()
+    // useEffect(() => {
+    //     const unsubscribe = navigation.addListener('focus', () => {
+    //       // The screen is focused
+    //       // Call any action
+    //     //   AllExistingDataList()
+    //     //   localsavedData()
           
-        });
+    //     });
     
-        // Return the function to unsubscribe from the event so it gets removed on unmount
-        return unsubscribe;
-      }, [navigation])
+    //     // Return the function to unsubscribe from the event so it gets removed on unmount
+    //     return unsubscribe;
+    //   }, [navigation])
 
     useEffect(() => {
         AllExistingDataList()
         localsavedData()
-    }, [])
+    },[])
 
     const localsavedData = async () => {
         const getAllLocalData = await getfieldDatafromLoacal()
         setAllAsyncData(getAllLocalData)
     }
-    // console.log('alllocaldata for sync',allAsyncData);
-
-    const AllExistingDataList = async () => {
-        try {
-            const requestData = {
-                user_id: userId,
-            };
-            const AllData = await dispatch(FormListApi(requestData))
-            setListCount(AllData.payload.totalrow)
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
-
+   
 
     const FreshData = () => {
         navigation.navigate('FreshData')
@@ -78,27 +67,40 @@ const DataButtons = () => {
 
     const onpressSync = async () => {
         const getAllLocalData = await getfieldDatafromLoacal()
-        console.log('getAllLocalData>>>',getAllLocalData);
         let pushDataintoArray = []
         let hasNetwork = await checkNetworkConnectivity();
 
         if (hasNetwork === true) {
-            pushDataintoArray.push(getAllLocalData)
-            console.log('pushDataintoArray', pushDataintoArray[0]);
-            // pushDataintoArray[0].map(async(item)=>{
-            //     console.log('item????',item);
-            //    const callapidata= await dispatch(FormDetailAction(item))
-            //    console.log('calapidatataatta',callapidata);
-            // })
-             dispatch(FormDetailAction(pushDataintoArray[0]))
-            //  AllExistingDataList()
-            await clearDatafromLoacal()
-            // setAllAsyncData('')
-             AllExistingDataList()
+          
+                pushDataintoArray.push(getAllLocalData)
+                dispatch(FormDetailAction(pushDataintoArray[0]))
+                AllExistingDataList()
+               await clearDatafromLoacal()
+            
+           
+            //    if(pushDataintoArray[0] == null || pushDataintoArray[0] == undefined){
+            //     console.log('pushDataintoArray>>>',pushDataintoArray);
+            //     alert('No data to sync')
+            // }
+           
+          
         }else{
             alert('Internet not available')
         }
     }
+
+    const AllExistingDataList = async() => {
+        try {
+            const requestData = {
+                user_id: userId,
+            };
+             await dispatch(FormListApi(requestData))
+            // setListCount(AllData.payload.totalrow)
+        } catch (error) {
+            console.log('errorrrrrrr',error);
+        }
+    }
+    
 
     return (
         <View style={{ marginTop: 50 }}>
@@ -120,7 +122,7 @@ const DataButtons = () => {
             />
 
             <CommonButton
-                title={`Total Data = ${listCount!=undefined ? listCount: 0}`}
+                title={`Total Data = ${totalcount!=undefined ? totalcount: 0}`}
                 bgColor={'#000'}
                 textColor={"#fff"}
                 customStyle={{ width: '80%', height: 50 }}

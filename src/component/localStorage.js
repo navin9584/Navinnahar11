@@ -43,7 +43,7 @@ export const getLoginCred = async () => {
 
 export const setfieldDataintoLoacal = async (data) => {
    let json = JSON.stringify(data);
-   console.log('setdata>>>>>>>>>>',json);
+//    console.log('setdata>>>>>>>>>>',json);
    let saved = await setData(FIELD_DATA_KEY, json)
    if (saved) {
        return true
@@ -55,7 +55,7 @@ export const setfieldDataintoLoacal = async (data) => {
 
 export const getfieldDatafromLoacal = async () => {
     let data = await getData(FIELD_DATA_KEY) 
-    console.log('getsaved data>>>',data);
+    // console.log('getsaved data>>>',data);
     return JSON.parse(data)
 }
 
@@ -71,7 +71,7 @@ export const clearDatafromLoacal = async () => {
 
 export const setFilterDatafromdrodown = async (data) => {
     let json = JSON.stringify(data);
-    console.log('setdata>>>>>>>',json);
+    // console.log('setdata>>>>>>>',json);
     let saved = await setData(FILTER_FROM_DROPDOWN, json)
     if (saved) {
         return true
@@ -96,9 +96,19 @@ export const setFilterDatafromdrodown = async (data) => {
 
 
 
-export const setarraydata = async (data) => {
+export const setFilterData = async (data) => {
     let json = JSON.stringify(data);
-    console.log('data>>>>>>>>',data);
-    await AsyncStorage.setItem(ARRAY_DATA,json);
-    return true
+    // console.log('setdata>>>>>>>',json);
+    let saved = await setData(ARRAY_DATA, json)
+    if (saved) {
+        return true
+    }
+    else {
+        return false
+    }
+}
+
+export const getFilterData = async () => {
+    let data = await getData(ARRAY_DATA) 
+    return JSON.parse(data)
 }

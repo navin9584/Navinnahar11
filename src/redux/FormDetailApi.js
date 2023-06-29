@@ -48,7 +48,7 @@ export const FormDetailAction = createAsyncThunk('FormDetailAction', async (data
 })
     // console.log('data>>>>>', formData)
     }catch(error){
-        console.log('error>>>>',error)
+        console.log('errorformdatarequest>>>>',error)
     }
     
 

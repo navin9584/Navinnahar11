@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 
 export const FormListApi = createAsyncThunk('FormListApi', async (data) => {
-    console.log('dataMMMMMMMMMM',data);
+    // console.log('dataMMMMMMMMMM',data);
     try{
     const formData = new FormData();
     formData.append('user_id',  data.user_id);
@@ -13,10 +13,10 @@ export const FormListApi = createAsyncThunk('FormListApi', async (data) => {
      
     const res = await fetch('https://framedekho.in/servayapp/Api/list', obj);
     const result = await res.json()
-    console.log('response>>>>', result);
+    console.log('responseformlist>>>>', result);
     return result;
     }catch(error){
-        console.log('error>>>>',error)
+        console.log('errorlistdatarequest>>>>',error)
     }
     
 

@@ -5,7 +5,7 @@ import SelectDropdown from 'react-native-select-dropdown'
 import { Dropdown } from 'react-native-element-dropdown';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {getfieldDatafromLoacal,setFilterDatafromdrodown } from '../localStorage';
+import {getfieldDatafromLoacal,setFilterData,setFilterDatafromdrodown } from '../localStorage';
 import {FormListApi} from '../../redux/FormListApi';
 import {SearchDataFromListApi} from '../../redux/SearchWithVoterApi';
 const {width} = Dimensions.get('window');
@@ -50,25 +50,8 @@ useEffect(() => {
 useEffect(()=>{
   AllExistingDataList()
 },[])
-const saveDataIntoLocal = async () => {
-  // await setFilterDatafromdrodown(data)
-  navigation.navigate('ExistFormDetail')
-}
 
 
-    const getItemList = async () => {
-        try {
-          const value = await getfieldDatafromLoacal()
-          if (value !== null) {
-            setAllData(value)
-            // console.log('Retrieved data:', value);
-          } else {
-            console.log('No data found.');
-          }
-        } catch (error) {
-          console.log('Error retrieving data:', error);
-        }
-    }
     
     const AllExistingDataList = async () => {
       let datalist = []
@@ -80,16 +63,14 @@ const saveDataIntoLocal = async () => {
           const data = AllData && AllData.payload.userdata
           datalist.push(data)
           setAllDataList(datalist[0])
-          console.log('allDataList>>>>',datalist);
+          // console.log('allDataList>>>>',datalist);
       } catch (error) {
           console.log(error);
       }
   }
-    
- 
 
-    const onDoneClick = async() => {
-      try{
+  const searchApi = async()=>{
+    try{
       if(value==null){
         setBadValue(true)
       }else{
@@ -98,16 +79,23 @@ const saveDataIntoLocal = async () => {
               user_id: userId,
               search:value
             };
-        const searchData = await dispatch(SearchDataFromListApi(requestData))
-          dispatch(FormListApi({user_id: userId}))
+         const searchData = await dispatch(SearchDataFromListApi(requestData))
+          // dispatch(SearchDataFromListApi(requestData))
+          // dispatch(FormListApi({user_id: userId}))
           // console.log('searchData>>>>///////',searchData);
+           setFilterData(value)
           navigation.navigate('ExistFormDetail',{data:searchData})
 
       }
     }catch(error){
       console.log(error);
     }
-        
+  }
+    
+ 
+
+    const onDoneClick = async() => {
+      searchApi()   
     }
 
 

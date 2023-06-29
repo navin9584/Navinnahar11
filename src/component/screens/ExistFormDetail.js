@@ -4,59 +4,47 @@ import { View, Text, ScrollView, BackHandler, TouchableOpacity, StyleSheet, Link
 import CommonButton from '../ReusableComponent/ButtonCompo';
 import TextInputCompo from '../ReusableComponent/TextInputCompo';
 import CheckBox from '@react-native-community/checkbox';
-import { getFilterDatafromdrodown,getfieldDatafromLoacal } from '../localStorage';
+import { getFilterData, getLoginCred,getfieldDatafromLoacal,setfieldDataintoLoacal } from '../localStorage';
 import { Camera, useCameraDevices } from 'react-native-vision-camera';
 import Loader from '../ReusableComponent/Loader';
 import { useDispatch, useSelector } from 'react-redux';
 import { FormDetailAction } from '../../redux/FormDetailApi';
 import { checkNetworkConnectivity } from '../localStorage';
 import Geolocation from '@react-native-community/geolocation';
+import { FormListApi } from '../../redux/FormListApi';
+
 
 const ExistFormDetail = ({ navigation,route }) => {
-  const [getAlldata, setAllData] = useState()
-  const [value, setValue] = useState(null);
-  const [badValue, setBadValue] = useState(false);
-  const [isFocus, setIsFocus] = useState(false);
-
-  // console.log('value>>>>', value);
   const param =  route.params
-  console.log('param>>>>',param);
+  // console.log('param>>>>',param);
 
-  function handleBackButtonClick() {
-    navigation.goBack();
-    return true;
-  }
-
-  useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', handleBackButtonClick);
-    return () => {
-      BackHandler.removeEventListener('hardwareBackPress', handleBackButtonClick);
-    };
-  }, []);
-
-
-  Geolocation.getCurrentPosition(info => setLongitude(info.coords.longitude));
-  Geolocation.getCurrentPosition(info => setLatitude(info.coords.latitude));
+const [dropdownData ,setDropdownData] = useState()
 
   const dispatch = useDispatch();
   const data = useSelector(state => state);
   const loginData = data.loginData.data
   const formSearchState = data.FormSearchData && data.FormSearchData.data && data.FormSearchData.data.userdata
   const userId = loginData && loginData.userdata && loginData.userdata.userId
-  const filterData = param && param.data.payload && param.data.payload && param.data.payload.userdata
+   const filterData = param && param.data.payload && param.data.payload && param.data.payload.userdata
+  const formListData = data.FormListData && data.FormListData.data && data.FormListData.data.userdata
 
-  // console.log('filterData>>>>>>', filterData);
-  // useEffect(()=>{
-  //   unsubscribe()
-  // },[])
-  // const unsubscribe = navigation.addListener('focus', () => {
-  //   filterData
-  // });
+
+const afterfilterdata =formListData && formListData.filter((f)=>{
+  return f.votarcode == dropdownData
+})
+
+// const filterData =  afterfilterdata 
+// console.log('afterfilterdata>>>>',typeof(filterData));
+
+// const filterData = afterfilterdata
+// setFilterValue(afterfilterdata)
+ 
   const getDetails = (type) => {
     if (filterData && filterData[0]) {
       switch (type) {
         case "block":
-          return filterData[0].block_name_number
+          console.log('filterData>>>>>>>>>>>>>>>>>>>>>>', filterData[0].vehicle );
+          return filterData && filterData[0].block_name_number
         case "booth":
           return filterData[0].booth_name_number
         case "grampanchayat":
@@ -120,37 +108,13 @@ const ExistFormDetail = ({ navigation,route }) => {
 
 
 
+
+ 
+
   const cameraRef = useRef(null);
-  const [toggleCheckBoxBC, setToggleCheckBoxBC] = useState()
-  const [toggleCheckBoxER, setToggleCheckBoxER] = useState()
-  const [toggleCheckBoxIP, setToggleCheckBoxIP] = useState()
-  const [toggleCheckBoxFP, setToggleCheckBoxFP] = useState()
-  const [toggleCheckBoxPP, setToggleCheckBoxPP] = useState()
-  const [toggleCheckBoxYC, setToggleCheckBoxYC] = useState()
-  const [toggleCheckBoxSC, setToggleCheckBoxSC] = useState()
-
-  const [badcode, setBadCode] = useState(false)
-
-  const [twoWheeler, setTwoWheeler] = useState()
-  const [fourWheeler, setFourWheeler] = useState()
-  const [noWheeler, setNoWheeler] = useState()
   const [vehicleValidate, setVehicleValidate] = useState(false)
-  const [badvehicleValidate, setBadvehicleValidate] = useState(false)
-
-
-
-  const [nariSammanYes, setNariSammanYes] = useState(false)
-  const [badNariSamman, setBadNariSamman] = useState(false);
-  const [nariSammanNo, setNariSammanNo] = useState(false)
-  const [narisammanValidate, setNariSammanValidate] = useState(false)
-  const [badnarisammanValidate, setBadNariSammanValidate] = useState(false)
-
-  const [kisanKarjMafi, setKisanKarjMafi] = useState(false)
-  const [kisanKarjMafiCongress, setKisanKarjMafiCongress] = useState(false)
-  const [kisanKarjMafiBjp, setKisanKarjMafiBjp] = useState(false)
-  const [kisanKarjMafiValidate, setKisanKarjMafiValidate] = useState(false)
-
-
+  
+// console.log('getDetails>>>>>>',getDetails());
   const [name, setName] = useState(getDetails("name"));
   const [fatherName, setFatherName] = useState(getDetails("fatherName"));
   const [age, setAge] = useState(getDetails("age"));
@@ -212,7 +176,7 @@ const ExistFormDetail = ({ navigation,route }) => {
   const [latitude, setLatitude] = useState()
 
   const [code, setCode] = useState({ selections: [getDetails("code")] })
-  const [vehicle, setVehicle] = useState({ selections: [getDetails("vehicle")] });
+  const [vehicle, setVehicle] = useState({ selections: [getDetails("vehicle")]});
   const [nariSamman, setNariSamman] = useState({ selections: [getDetails("respect_for_women")] })
   const [kisanLoan, setKisanLoan] = useState({ selections: [getDetails("kisanLoan")] })
   const options = ['टू व्हीलर', 'फोर व्हीलर', 'कोई वाहन नहीं है']
@@ -220,27 +184,51 @@ const ExistFormDetail = ({ navigation,route }) => {
   const narisammanOption = ['Yes', 'No']
   const kisanLoanOption = ['नही', 'कांग्रेस', 'बीजेपी']
 
-
-
-
-  useEffect(() => {
-    // getFilterDatafromLocal()
-  }, [])
+ console.log('vehicle???????????',vehicle.selections);
+  Geolocation.getCurrentPosition(info => setLongitude(info.coords.longitude));
+  Geolocation.getCurrentPosition(info => setLatitude(info.coords.latitude));
   
 
-  const getFilterDatafromLocal = async () => {
-    try {
-      const data = await getFilterDatafromdrodown()
-      if (data !== null) {
-        setFilterData(data)
-        // console.log('Retrieved data:', value);
-      } else {
-        console.log('No data found.');
-      }
-    } catch (error) {
-      console.log('Error retrieving data:', error);
-    }
+
+useEffect(()=>{
+  const getfilterData =async()=>{
+    const dropdownselectvalue =  await getFilterData()
+    // console.log('datavalueeee>>>>>',filterdata);
+    setDropdownData(dropdownselectvalue)
+    
+    // console.log('afterfilterdata>>>??////',afterfilterdata);
   }
+  getfilterData()
+},[])
+
+
+  
+    function handleBackButtonClick() {
+      navigation.goBack();
+      return true;
+    }
+  
+    useEffect(() => {
+      BackHandler.addEventListener('hardwareBackPress', handleBackButtonClick);
+      return () => {
+        BackHandler.removeEventListener('hardwareBackPress', handleBackButtonClick);
+      };
+    }, []);
+
+
+
+  useEffect(()=>{
+    getfieldDatafromLoacal()
+    getData()
+  },[])
+
+  const getData = async() =>{
+    const loginData = await getLoginCred();
+    // console.log('locallogindata>>',loginData);
+    
+  }
+
+  
 
   // console.log('filterData>>>>',filterData&&filterData[0].toggleCheckBoxIP);
 
@@ -430,8 +418,7 @@ const ExistFormDetail = ({ navigation,route }) => {
     // console.log('hasNetwork??????', hasNetwork);
     if (hasNetwork === true) {
       // console.log('saveApiData()');
-      saveDataIntoLocal()
-      navigation.push('DataButtons')
+      saveApiData()
     } else {
       console.log('saveDataIntoLocal()');
       saveDataIntoLocal()
@@ -454,14 +441,14 @@ const ExistFormDetail = ({ navigation,route }) => {
       "capturedPhoto": capturedPhoto, "nariSamman": nariSamman.selections, 
       "kisanLoan": kisanLoan, "facebook": facebook, instagram: 'instagram', "twitter": twitter, "longitude": longitude, "latitude": latitude
     }
-      if(newArray == null || newArray == undefined ){
-        dataarray.push(allfieldtostore)
-       await setfieldDataintoLoacal(dataarray);
-       console.log('dataarray>>>>>>>>>>>',dataarray);
-      }else{
-        newArray.push(allfieldtostore)
-       await setfieldDataintoLoacal(newArray);
-      }
+    if(newArray == null || newArray == undefined ){
+      dataarray.push(allfieldtostore)
+     await setfieldDataintoLoacal(dataarray);
+     console.log('dataarray>>>>>>>>>>>',dataarray);
+    }else{
+      newArray.push(allfieldtostore)
+     await setfieldDataintoLoacal(newArray);
+    }
     
       // const newItems = allfieldtostore
       // dataList.push(...newItems)
@@ -485,11 +472,24 @@ const ExistFormDetail = ({ navigation,route }) => {
       capturedPhoto: capturedPhoto, nariSamman: nariSamman.selections, kisanLoan: kisanLoan.selections,
       facebook: facebook, instagram: instagram, twitter: twitter, longitude: longitude, latitude: latitude
     }]
-    const datalist = allfieldtostore && allfieldtostore[0]
-    // console.log('datalist>>',datalist);
+    const datalist = allfieldtostore
+    // console.log('datalist/////////////////////>>',datalist);
     dispatch(FormDetailAction(datalist))
+    AllExistingDataList()
+    navigation.navigate('DataButtons')
   };
 
+  const AllExistingDataList = async () => {
+    try {
+        const requestData = {
+            user_id: userId,
+        };
+         await dispatch(FormListApi(requestData))
+        // setListCount(AllData.payload.totalrow)
+    } catch (error) {
+        console.log(error);
+    }
+}
 
   if (device == null) return <Loader />
   // console.log('capturephoto', capturedPhoto);
@@ -503,8 +503,12 @@ const ExistFormDetail = ({ navigation,route }) => {
 
   }
 
-  const handleCheckboxChange = (key) => {
+   const handleCheckboxChange = (key) => {
+    let slectkey = [key]
+
+    console.log('key>>>>>',slectkey);
     let sel = vehicle.selections
+    console.log('sel>>>>',sel);
     let find = sel.indexOf(key)
     if (find > -1) {
       sel.splice(find, 1)
