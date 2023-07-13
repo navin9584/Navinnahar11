@@ -184,19 +184,17 @@ const afterfilterdata =formListData && formListData.filter((f)=>{
   const narisammanOption = ['Yes', 'No']
   const kisanLoanOption = ['नही', 'कांग्रेस', 'बीजेपी']
 
- console.log('vehicle???????????',vehicle.selections);
   Geolocation.getCurrentPosition(info => setLongitude(info.coords.longitude));
   Geolocation.getCurrentPosition(info => setLatitude(info.coords.latitude));
+
   
 
 
 useEffect(()=>{
   const getfilterData =async()=>{
     const dropdownselectvalue =  await getFilterData()
-    // console.log('datavalueeee>>>>>',filterdata);
     setDropdownData(dropdownselectvalue)
     
-    // console.log('afterfilterdata>>>??////',afterfilterdata);
   }
   getfilterData()
 },[])
@@ -504,6 +502,7 @@ useEffect(()=>{
   }
 
    const handleCheckboxChange = (key) => {
+    setVehicle('')
     let slectkey = [key]
 
     console.log('key>>>>>',slectkey);

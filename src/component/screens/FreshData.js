@@ -3,7 +3,7 @@ import { View, Text, ScrollView, BackHandler, TouchableOpacity, StyleSheet, Link
 import CommonButton from '../ReusableComponent/ButtonCompo';
 import TextInputCompo from '../ReusableComponent/TextInputCompo';
 import CheckBox from '@react-native-community/checkbox';
-import { setfieldDataintoLoacal, getFilterDatafromdrodown, getfieldDatafromLoacal ,getLoginCred} from '../localStorage';
+import { setfieldDataintoLoacal, getFilterDatafromdrodown, getfieldDatafromLoacal, getLoginCred,setfieldDataintoLoacalforone } from '../localStorage';
 import { Camera, useCameraDevices } from 'react-native-vision-camera';
 import Loader from '../ReusableComponent/Loader';
 import { FormDetailAction } from '../../redux/FormDetailApi';
@@ -11,6 +11,8 @@ import { checkNetworkConnectivity } from '../localStorage';
 import { useDispatch, useSelector } from 'react-redux';
 import Geolocation from '@react-native-community/geolocation';
 import { FormListApi } from '../../redux/FormListApi';
+import { Picker } from '@react-native-picker/picker'
+// import CheckBox from 'react-native-check-box'
 
 const FreshData = ({ navigation }) => {
 
@@ -18,6 +20,7 @@ const FreshData = ({ navigation }) => {
   const cameraRef = useRef(null);
   const [longitude, setLongitude] = useState()
   const [latitude, setLatitude] = useState()
+  const [dateTime, setDateTime] = useState()
 
   const [vehicleValidate, setVehicleValidate] = useState(false)
   const [badvehicleValidate, setBadvehicleValidate] = useState(false)
@@ -26,7 +29,7 @@ const FreshData = ({ navigation }) => {
 
   const [nariSammanYes, setNariSammanYes] = useState(false)
   const [badNariSamman, setBadNariSamman] = useState(false);
-  
+
   const [narisammanValidate, setNariSammanValidate] = useState(false)
   const [badnarisammanValidate, setBadNariSammanValidate] = useState(false)
 
@@ -39,7 +42,8 @@ const FreshData = ({ navigation }) => {
   const [name, setName] = useState('');
   const [fatherName, setFatherName] = useState('');
   const [age, setAge] = useState('');
-  const [cast, setCast] = useState('');
+  const [cast, setCast] = useState();
+  const [selectedLanguage, setSelectedLanguage] = useState();
   const [education, setEducation] = useState('');
   const [mobile, setMobile] = useState('');
   const [badName, setBadName] = useState(false);
@@ -63,11 +67,13 @@ const FreshData = ({ navigation }) => {
 
   const [block, setBlock] = useState('');
   const [booth, setBooth] = useState('');
+  const [boothno, setBoothNo] = useState('');
   const [grampanchayat, setGramPanchayat] = useState('');
   const [village, setVillage] = useState('');
   const [toll, setToll] = useState('');
   const [badblock, setBadblock] = useState(false);
   const [badBooth, setBadBooth] = useState(false);
+  const [badBoothno, setBadBoothNo] = useState(false);
   const [badgrampanchayat, setBadgrampanchayat] = useState(false);
   const [badvillage, setBadvillage] = useState(false);
   const [badToll, setBadToll] = useState(false);
@@ -95,23 +101,35 @@ const FreshData = ({ navigation }) => {
 
   const [code, setCode] = useState({ selections: [] })
   const [vehicle, setVehicle] = useState({ selections: [] });
-  const [nariSamman, setNariSamman] = useState({selections: []})
-  const [kisanLoan, setKisanLoan] = useState({selections: []})
-  const options = ['टू व्हीलर', 'फोर व्हीलर', 'कोई वाहन नहीं है']
-  const codeOption = ['BC', 'ER', 'IP', 'FP', 'PP', 'YC', 'SC']
-  const narisammanOption = ['Yes','No']
-  const kisanLoanOption = ['नही','कांग्रेस','बीजेपी']
+  const [nariSamman, setNariSamman] = useState({ selections: [] })
+  const [kisanLoan, setKisanLoan] = useState({ selections: [] })
+  const options = ['2 व्हीलर', '4 व्हीलर', 'कोई वाहन नहीं है']
+  const codeOption = ['BC (बूथ कमीटी)','PP (पेज प्रभारी)', 'IP (प्रभावशाली व्यक्ति)','FH(परिवार का मुखिया)','SC (सीनियर कांग्रेस)','YC (यूथ कांग्रेस)', 'FP (फलिया प्रभारी)', 'ER (इलेक्शन)',]
+  const narisammanOption = ['Yes', 'No']
+  const kisanLoanOption = ['नही', 'कांग्रेस', 'बीजेपी']
+  const [isFocus, setIsFocus] = useState(false);
+  const [countData,setCountData] = useState()
+  // const twoWheeler = "टू व्हीलर"
+  // const fourWheeler = "फोर व्हीलर"
+  // const noWheeler = "कोई वाहन नहीं है"
+  // console.log('cast>>',cast);
+  const [isChecked, setIsChecked] = useState({
+    twoWheeler: false,
+    fourWheeler: false,
+    noWheeler: false,
+  })
 
-
+  const vehicles = isChecked.twoWheeler == true ? isChecked.fourWheeler == true ? isChecked.noWheeler == true ? "टू व्हीलर" : "फोर व्हीलर" : 'कोई वाहन नहीं है' : ""
 
   const data = useSelector(state => state);
   const formData = data.formData.data
   const loginData = data.loginData.data && data.loginData.data.userdata
   const userId = loginData && loginData.userId
-console.log('userid>>>',userId);
+  // console.log('userid>>>', userId);
+  // console.log('listDataa>>>>>>>',data);
 
 
- 
+
   const onPressNext1 = () => {
     if (block == '') {
       setBadblock(true);
@@ -122,6 +140,11 @@ console.log('userid>>>',userId);
       setBadBooth(true)
     } else {
       setBadBooth(false)
+    }
+    if (boothno == '') {
+      setBadBoothNo(true)
+    } else {
+      setBadBoothNo(false)
     }
     if (grampanchayat == '') {
       setBadgrampanchayat(true)
@@ -275,11 +298,17 @@ console.log('userid>>>',userId);
     setButtonShow4(true)
     setButtonShow5(false)
   }
+  const [camerView, setcameraView] = useState()
 
   const devices = useCameraDevices("wide-angle-camera")
   const device = devices.back
+  const deviceFront = device
 
-  // console.log('devices>>>', JSON.stringify(devices));
+  const rotateFun = () => {
+    setcameraView(camerView)
+  }
+
+
   const checkPermission = useCallback(async () => {
     const permission = await Camera.requestCameraPermission()
     if (permission === 'denied') {
@@ -291,88 +320,83 @@ console.log('userid>>>',userId);
     checkPermission()
   }, [checkPermission, devices])
 
-  useEffect(()=>{
+  useEffect(() => {
     getfieldDatafromLoacal()
     getData()
-  },[])
+  }, [countData])
 
-  const getData = async() =>{
+  const getData = async () => {
     const loginData = await getLoginCred();
-    console.log('locallogindata>>',loginData);
-    
+    // console.log('locallogindata>>', loginData);
+
   }
 
 
 
-  const onSubmit = async () => {
-    let hasNetwork = await checkNetworkConnectivity();
-    console.log('hasNetwork??????', hasNetwork);
-    if (hasNetwork === true) {
-      saveApiData()
-     
-      // console.log('saveDataIntoLocal()');
-    }else{
+  const onSubmit = () => {
       saveDataIntoLocal()
-      navigation.navigate('DataButtons')
-      // console.log('saveDataIntoLocal()');
-    }
   }
 
 
-
-
-
-  function handleBackButtonClick() {
-    navigation.goBack();
-    return true;
-  }
-
-  useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', handleBackButtonClick);
-    return () => {
-      BackHandler.removeEventListener('hardwareBackPress', handleBackButtonClick);
-    };
-  }, []);
 
   Geolocation.getCurrentPosition(info => setLongitude(info.coords.longitude));
   Geolocation.getCurrentPosition(info => setLatitude(info.coords.latitude));
-  
+  // Geolocation.getCurrentPosition(info => setDateTime(new Date(info.timestamp * 1000)));
+
+
   const saveDataIntoLocal = async () => {
     let dataarray = []
-    let newArray =await getfieldDatafromLoacal()
-    console.log('newarrrayayayyayyayy',newArray);
-   
-    try {
-    const allfieldtostore = {
-      "user_id": loginData.userId,"block": block, 'booth': booth, 'grampanchayat': grampanchayat, 'village': village, 'toll': toll,
-      "name": name, "fatherName": fatherName, "cast": cast, "age": age, "education": education, "mobile": mobile,
-      "voterId": voterId, "address": address, "gender": gender, "vehicle": vehicle.selections, "group": group, "govtEmploye": govtEmploye,
-      "party": party, "code": code.selections,
-      "capturedPhoto": capturedPhoto, "nariSamman": nariSamman.selections, 
-      "kisanLoan": kisanLoan,  "facebook": facebook, instagram: 'instagram', "twitter": twitter, "longitude": longitude, "latitude": latitude
-    }
-      if(newArray == null || newArray == undefined ){
-        dataarray.push(allfieldtostore)
-       await setfieldDataintoLoacal(dataarray);
-       console.log('dataarray>>>>>>>>>>>',dataarray);
-      }else{
-        newArray.push(allfieldtostore)
-       await setfieldDataintoLoacal(newArray);
-      }
     
-      // const newItems = allfieldtostore
-      // dataList.push(...newItems)
-      // const updatedList = [...dataList];
-      //  console.log('dataList>>>', dataList);
-      //  console.log('updatedList>>>', updatedList);
+    try {
+      const allfieldtostore = {"user_id":loginData.userId,"block_name_number":block,"votarcode":voterId,"booth_name_number":booth,"grampanchayat":grampanchayat,"village":village,"toll":toll,"name":name,
+        "fathername":fatherName,"jaati":cast,"age":age,"education":education,"mobile":mobile,"lat":latitude,"long":longitude,"address":address,"gender":gender,"vehicle":vehicle.selections.toString(),
+        "group":group,"government_employee":govtEmploye,"parti":party,"code":code.selections.toString(),"servayid":"servayid","respect_for_women":nariSamman.selections.toString(),
+        "farmer_loan_waiver":kisanLoan.selections.toString(),"facebook":facebook,"twitter":twitter,"instagram":instagram,"end_lat":latitude,"end_long":longitude,"startdate":'dateTime',"enddate":'dateTime'}
+
+
+        // "user_id": loginData.userId, "block_name_number": block, 'booth_name_number': booth, 'grampanchayat': grampanchayat, 'village': village, 'toll': toll,
+        // "name": name, "fatherName": fatherName, "jaati": cast, "age": age, "education": education, "mobile": mobile,
+        // "voterId": voterId, "address": address, "gender": gender, "vehicle": vehicle.selections.toString(), "group": group, "government_employee": govtEmploye,
+        // "parti": party, "code": code.selections.toString(),
+        //  "respect_for_women": nariSamman.selections.toString(),
+        // "farmer_loan_waiver": kisanLoan.selections.toString(), "facebook": facebook, "instagram": instagram, "twitter": twitter, "long": longitude, "lat": latitude,
+        // "servayid":"servayid","end_lat":"0.009090","end_long":"0.00","startdate":"2023-07-12","enddate":"2023-07-12"
       
-      // setDataList(updatedList);
+      let newArray = await getfieldDatafromLoacal()
+      console.log('newarrrayayayyayyayy', newArray);
+      if (newArray == null || newArray == undefined) {
+        dataarray.push(allfieldtostore)
+        await setfieldDataintoLoacal(dataarray);
+        console.log('dataarray>>>>>>>>>>>', dataarray);
+      } else {
+        newArray.push(allfieldtostore)
+        await setfieldDataintoLoacal(newArray);
+      }
       console.log('Data saved successfully.');
+      // getDataLocalData()
+      navigation.navigate('DataButtons')
     } catch (error) {
       console.log('Error saving data:', error);
     }
     //   navigation.navigate("");
+    console.log('countsssssssssssssssss',countData);
+  
+    
   };
+
+  const getDataLocalData = async () => {
+    try {
+      const value = await getfieldDatafromLoacal()
+      if(value !== null) {
+        setCountData(value)
+        // value previously stored
+        console.log('value>>>>>>??????????????????????????',value.length);
+      }
+    } catch(e) {
+      // error reading value
+    }
+  }
+ 
 
   const saveApiData = async () => {
     const allfieldtostore = [{
@@ -384,27 +408,28 @@ console.log('userid>>>',userId);
       facebook: facebook, instagram: instagram, twitter: twitter, longitude: longitude, latitude: latitude
     }]
     const datalist = allfieldtostore
-    console.log('datalist/////////////////////>>',datalist);
+    // console.log('datalist/////////////////////>>', datalist);
     dispatch(FormDetailAction(datalist))
     AllExistingDataList()
-    navigation.navigate('DataButtons')
+    // navigation.navigate('DataButtons')
   };
 
   const AllExistingDataList = async () => {
     try {
-        const requestData = {
-            user_id: userId,
-        };
-         await dispatch(FormListApi(requestData))
-        // setListCount(AllData.payload.totalrow)
+      const requestData = {
+        user_id: userId,
+      };
+       dispatch(FormListApi(requestData))
+      // setListCount(AllData.payload.totalrow)
     } catch (error) {
-        console.log(error);
+      console.log(error);
     }
-}
+  }
 
 
-  if (device == null) return <Loader />
-  // console.log('capturephoto', capturedPhoto);
+  // if (deviceFront == null) return <Loader />
+
+
   const tackPicture = async () => {
     if (cameraRef != null) {
       const photo = await cameraRef.current.takePhoto()
@@ -415,7 +440,22 @@ console.log('userid>>>',userId);
 
   }
 
+  // if (deviceFront == null) return <Loader />
+
+
+  const tackPicturefront = async () => {
+    if (cameraRef != null) {
+      const photo = await cameraRef.current.takePhoto()
+      setCapturedPhoto(photo.path)
+      // setTackphotoclickd(false)
+      setModalVisible(!modalVisible)
+    }
+
+  }
+
   const handleCheckboxChange = (key) => {
+    console.log('key>>>>>>>>>>>', key);
+    let vehicles = []
     let sel = vehicle.selections
     let find = sel.indexOf(key)
     if (find > -1) {
@@ -423,7 +463,6 @@ console.log('userid>>>',userId);
     } else {
       sel.push(key)
     }
-
     setVehicle({
       selections: sel,
     })
@@ -432,6 +471,7 @@ console.log('userid>>>',userId);
   const handleCodeCheckboxChange = (key) => {
     let sel = code.selections
     let find = sel.indexOf(key)
+    console.log('find>>>>>', find);
     if (find > -1) {
       sel.splice(find, 1)
     } else {
@@ -479,11 +519,11 @@ console.log('userid>>>',userId);
         <View>
           {buttonShow1 &&
             <View>
-              <Text style={{ textAlign: 'center', fontSize: 18, color: 'black', marginTop: 10 }}>{'गंधवानी विधानसभा 19'}</Text>
+              <Text style={{ textAlign: 'center', fontSize: 18, color: 'black', marginTop: 10 }}>{'गंधवानी विधानसभा 197'}</Text>
 
               <View style={{ marginTop: 20 }}>
 
-                <Text style={{ top: 20, fontSize: 16, fontWeight: '500', color: 'black', textAlign: 'center' }}> ब्लॉक नाम & नंबर </Text>
+                <Text style={{ top: 20, fontSize: 16, fontWeight: '500', color: 'black', textAlign: 'center' }}> ब्लॉक नाम </Text>
                 <TextInputCompo
                   onChangeText={(txt) =>
                     setBlock(txt)
@@ -492,13 +532,21 @@ console.log('userid>>>',userId);
                 {badblock === true && <Text style={{ color: "red", marginLeft: 30 }}>*Required field</Text>}
 
 
-                <Text style={{ top: 20, fontSize: 16, fontWeight: '500', color: 'black', textAlign: 'center' }}> बूथ नाम & नंबर </Text>
+                <Text style={{ top: 20, fontSize: 16, fontWeight: '500', color: 'black', textAlign: 'center' }}> बूथ नाम </Text>
                 <TextInputCompo
                   onChangeText={(txt) =>
                     setBooth(txt)
                   }
                   value={booth} />
                 {badBooth === true && <Text style={{ color: "red", marginLeft: 30 }}>*Required field</Text>}
+
+                <Text style={{ top: 20, fontSize: 16, fontWeight: '500', color: 'black', textAlign: 'center' }}> बूथ नंबर </Text>
+                <TextInputCompo
+                  onChangeText={(txt) =>
+                    setBoothNo(txt)
+                  }
+                  value={boothno} />
+                {badBoothno === true && <Text style={{ color: "red", marginLeft: 30 }}>*Required field</Text>}
 
 
                 <Text style={{ top: 20, fontSize: 16, fontWeight: '500', color: 'black', textAlign: 'center' }}> ग्राम पंचायत </Text>
@@ -568,11 +616,62 @@ console.log('userid>>>',userId);
               {badFather === true && <Text style={{ color: "red", marginLeft: 30 }}>*Required field</Text>}
 
               <Text style={{ top: 20, fontSize: 16, fontWeight: '500', color: 'black', marginLeft: 30 }}> जाति </Text>
-              <TextInputCompo
+              {/* <TextInputCompo
                 onChangeText={(txt) =>
                   setCast(txt)
                 }
-                value={cast} />
+                value={cast} /> */}
+              {/* <Dropdown
+          style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
+          placeholderStyle={styles.placeholderStyle}
+          selectedTextStyle={styles.selectedTextStyle}
+          inputSearchStyle={styles.inputSearchStyle}
+          iconStyle={styles.iconStyle}
+          data={[cast]}
+         
+          
+          maxHeight={300}
+          labelField=""
+          valueField=""
+          placeholder={!isFocus ? 'Select Data' : '...'}
+          value={'value'}
+          onFocus={() => setIsFocus(true)}
+          onBlur={() => setIsFocus(false)}
+          onChange={item => {
+            setCast(item);
+            setIsFocus(false);
+            // setBadValue(false)
+          }}
+         
+        /> */}
+              <View style={[styles.dropdown]}>
+                <Picker
+                  //  style={[styles.dropdown]}
+                  itemStyle={{ color: 'red' }}
+                  placeholderStyle={styles.placeholderStyle}
+                  selectedTextStyle={styles.selectedTextStyle}
+                  selectedValue={cast}
+                  onValueChange={(itemValue, itemIndex) =>
+                    setCast(itemValue)
+                  }>
+                  <Picker.Item label="लिस्ट से चुनै" value="" />
+                  <Picker.Item label="भील" value="भील" />
+                  <Picker.Item label="भीलाला" value="भीलाला" />
+                  <Picker.Item label="मुस्लिम" value="मुस्लिम" />
+                  <Picker.Item label="ब्राह्मण" value="ब्राह्मण" />
+                  <Picker.Item label="सिरवी" value="सिरवी" />
+                  <Picker.Item label="माहेश्वरी" value="माहेश्वरी" />
+                  <Picker.Item label="प्रजापति" value="प्रजापति" />
+                  <Picker.Item label="राजपूत" value="राजपूत" />
+                  <Picker.Item label="लोहार" value="लोहार" />
+                  <Picker.Item label="सिख" value="सिख" />
+                  <Picker.Item label="राठौर" value="राठौर" />
+                  <Picker.Item label="जैन" value="जैन" />
+                  <Picker.Item label="बोहरा" value="बोहरा" />
+                  <Picker.Item label="एस टी" value="बोहरा टी" />
+                  <Picker.Item label="अन्य" value="अन्य" />
+                </Picker>
+              </View>
               {badcast === true && <Text style={{ color: "red", marginLeft: 30 }}>*Required field</Text>}
 
               <Text style={{ top: 20, fontSize: 16, fontWeight: '500', color: 'black', marginLeft: 30 }}> आयु </Text>
@@ -584,11 +683,31 @@ console.log('userid>>>',userId);
               {badage === true && <Text style={{ color: "red", marginLeft: 30 }}>*Required field</Text>}
 
               <Text style={{ top: 20, fontSize: 16, fontWeight: '500', color: 'black', marginLeft: 30 }}> शिक्षा </Text>
-              <TextInputCompo
+              {/* <TextInputCompo
                 onChangeText={(txt) =>
                   setEducation(txt)
                 }
-                value={education} />
+                value={education} /> */}
+                  <View style={[styles.dropdown]}>
+                <Picker
+                  //  style={[styles.dropdown]}
+                  itemStyle={{ color: 'red' }}
+                  placeholderStyle={styles.placeholderStyle}
+                  selectedTextStyle={styles.selectedTextStyle}
+                  selectedValue={education}
+                  onValueChange={(itemValue, itemIndex) =>
+                    setEducation(itemValue)
+                  }>
+                  <Picker.Item label="लिस्ट से चुनै" value="" />
+                  <Picker.Item label="अशिक्षित" value="अशिक्षित" />
+                  <Picker.Item label="प्राइमरी स्कूल (5th)" value="प्राइमरी स्कूल (5th)" />
+                  <Picker.Item label="मिडिल स्कूल (8th)" value="मिडिल स्कूल (8th)" />
+                  <Picker.Item label="हाई स्कूल (10th)" value="हाई स्कूल (10th)" />
+                  <Picker.Item label="हायर सेकेंडरी स्कूल (12th)" value="हायर सेकेंडरी स्कूल (12th)" />
+                  <Picker.Item label="ग्रेजुएट" value="ग्रेजुएट" />
+                  <Picker.Item label="पोस्ट ग्रेजुएट" value="पोस्ट ग्रेजुएट" />
+                </Picker>
+              </View>
               {badeducation === true && <Text style={{ color: "red", marginLeft: 30 }}>*Required field</Text>}
 
               <Text style={{ top: 20, fontSize: 16, fontWeight: '500', color: 'black', marginLeft: 30 }}> मोबाइल नंबर </Text>
@@ -598,7 +717,7 @@ console.log('userid>>>',userId);
                 }
                 value={mobile} />
               {badmobile === true && <Text style={{ color: "red", marginLeft: 30 }}>*Required field</Text>}
-              <View style={{  flexDirection: 'row', justifyContent: 'space-around' }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
                 <CommonButton
                   title={'Back'}
                   bgColor={'#000'}
@@ -622,7 +741,7 @@ console.log('userid>>>',userId);
           {buttonShow3 &&
             <View style={{ marginTop: 20 }}>
 
-              <Text style={{ top: 20, fontSize: 16, fontWeight: '500', color: 'black', marginLeft: 30 }}>वोटर कोड</Text>
+              <Text style={{ top: 20, fontSize: 16, fontWeight: '500', color: 'black', marginLeft: 30 }}>वोटर आईडी</Text>
               <TextInputCompo
                 onChangeText={(txt) =>
                   setVoterId(txt)
@@ -640,11 +759,26 @@ console.log('userid>>>',userId);
 
 
               <Text style={{ top: 20, fontSize: 16, fontWeight: '500', color: 'black', marginLeft: 30 }}> लिंग </Text>
-              <TextInputCompo
+              {/* <TextInputCompo
                 onChangeText={(txt) =>
                   setGender(txt)
                 }
-                value={gender} />
+                value={gender} /> */}
+                 <View style={[styles.dropdown]}>
+                <Picker
+                  //  style={[styles.dropdown]}
+                  placeholderStyle={styles.placeholderStyle}
+                  selectedTextStyle={styles.selectedTextStyle}
+                  selectedValue={gender}
+                  onValueChange={(itemValue, itemIndex) =>
+                    setGender(itemValue)
+                  }>
+                  <Picker.Item label="लिस्ट से चुनै" value="" />
+                  <Picker.Item label="पुरुष" value="पुरुष" />
+                  <Picker.Item label="महिला" value="महिला" />
+                  <Picker.Item label="अन्य" value="अन्य" />
+                </Picker>
+              </View>
               {badgender === true && <Text style={{ color: "red", marginLeft: 30 }}>*Required field</Text>}
 
 
@@ -657,7 +791,7 @@ console.log('userid>>>',userId);
               {badgroup === true && <Text style={{ color: "red", marginLeft: 30 }}>*Required field</Text>}
               <Text style={{ marginTop: 20, fontSize: 16, fontWeight: '500', color: 'black', marginLeft: 30 }}> वाहन </Text>
 
-              {options.map((item) => {
+              {options.map((item, key) => {
                 return (
                   <>
                     <View>
@@ -667,7 +801,7 @@ console.log('userid>>>',userId);
                           <CheckBox
 
                             disabled={false}
-                            key={item}
+                            key={key}
                             tintColors={true ? '#9E663C' : '#4DABEC'}
                             boxType={'circle'}
                             value={vehicle.selections.includes(item)}
@@ -675,17 +809,54 @@ console.log('userid>>>',userId);
 
                           />
                         </View>
-                      
-                          <Text style={{ marginLeft: 20, fontSize: 16, fontWeight: '500', color: 'black', }}>{item}</Text>
-                        
+
+                        <Text style={{ marginLeft: 20, fontSize: 16, fontWeight: '500', color: 'black', }}>{item}</Text>
+
                       </View>
                     </View>
 
                   </>
                 )
               })}
+              {/* 
+              <View>
 
-             
+                <View style={{ flexDirection: 'row', alignItems: "center", marginLeft: 40 }}>
+                  <CheckBox
+                    style={{ flex: 1, padding: 10 }}
+                    onClick={() => {
+                      setIsChecked({...isChecked,twoWheeler: !isChecked.twoWheeler})
+                    }}
+                    isChecked={isChecked.twoWheeler}
+                    rightText={"टू व्हीलर"}
+                  />
+                 
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: "center", marginLeft: 40 }}>
+                  <CheckBox
+                    style={{ flex: 1, padding: 10 }}
+                    onClick={() => {
+                      setIsChecked({...isChecked,fourWheeler: !isChecked.fourWheeler})
+                    }}
+                    isChecked={isChecked.fourWheeler}
+                    rightText={"फोर व्हीलर"}
+                  />
+                 
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: "center", marginLeft: 40 }}>
+                  <CheckBox
+                    style={{ flex: 1, padding: 10 }}
+                    onClick={() => {
+                      setIsChecked({...isChecked,noWheeler: !isChecked.noWheeler})
+                    }}
+                    isChecked={isChecked.noWheeler}
+                    rightText={"कोई वाहन नहीं है"}
+                  />
+                 
+                </View>
+              </View> */}
+
+
               <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
                 <CommonButton
                   title={'Back'}
@@ -708,7 +879,7 @@ console.log('userid>>>',userId);
         <View>
           {buttonShow4 &&
             <View style={{ flex: 1 }}>
-              <Text style={{ top: 20, fontSize: 16, fontWeight: '500', color: 'black', marginLeft: 30 }}> सरकारी कर्मचारी - Y/N </Text>
+              <Text style={{ top: 20, fontSize: 16, fontWeight: '500', color: 'black', marginLeft: 30 }}> सरकारी कर्मचारी - Yes/No </Text>
               <TextInputCompo
                 Placeholder={'विभाग और पोस्ट'}
                 onChangeText={(txt) =>
@@ -734,7 +905,7 @@ console.log('userid>>>',userId);
               {codeOption.map((item) => {
                 return (
                   <>
-                    <View style={{ flexDirection: 'row', marginHorizontal: 20, justifyContent: 'space-evenly', alignItems: 'center', marginTop: 10 }}>
+                    <View style={{ flexDirection: 'row', marginTop: 10,marginLeft:50 }}>
                       <CheckBox
 
                         disabled={false}
@@ -746,9 +917,9 @@ console.log('userid>>>',userId);
 
                       />
 
-                      <TouchableOpacity >
-                        <Text style={{ fontSize: 16, fontWeight: '500', color: 'black', }}>{item}</Text>
-                      </TouchableOpacity>
+                      <View >
+                        <Text style={{ fontSize: 16, fontWeight: '500', color: 'black',marginLeft:10 }}>{item}</Text>
+                      </View>
                     </View>
                   </>
 
@@ -791,50 +962,50 @@ console.log('userid>>>',userId);
 
               <Text style={{ marginTop: 20, fontSize: 16, fontWeight: '500', color: 'black', marginLeft: 30 }}>नारी सम्मान</Text>
               {/* {badNariSamman === true && <Text style={{ color: "red", marginLeft: 30 }}>*Required field</Text>} */}
-             <View style={{flexDirection:'row'}}>
-              {narisammanOption.map((item) => {
-                return (
-                  <>
-                    <View style={{ flexDirection:'row', marginHorizontal:20, alignItems: 'center', marginTop: 10 }}>
-                  <CheckBox
-                    disabled={false}
-                    boxType={'circle'}
-                    value={nariSamman.selections.includes(item)}
-                    onValueChange={() => handleNariSammanCheckboxChange(item)}
-                  />
-                  <Text style={{ marginLeft: 20 }}>{item}</Text>
-                </View>
+              <View style={{ flexDirection: 'row' }}>
+                {narisammanOption.map((item) => {
+                  return (
+                    <>
+                      <View style={{ flexDirection: 'row', marginHorizontal: 20, alignItems: 'center', marginTop: 10 }}>
+                        <CheckBox
+                          disabled={false}
+                          boxType={'circle'}
+                          value={nariSamman.selections.includes(item)}
+                          onValueChange={() => handleNariSammanCheckboxChange(item)}
+                        />
+                        <Text style={{ marginLeft: 20 }}>{item}</Text>
+                      </View>
 
-                  </>
+                    </>
 
-                )
-              })}
+                  )
+                })}
               </View>
 
-            
+
 
               <Text style={{ marginTop: 20, fontSize: 16, fontWeight: '500', color: 'black', marginLeft: 30 }}>किसान कर्ज माफी</Text>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 }}>
-               
-              {kisanLoanOption.map((item) => {
-                return (
-                  <>
-                    <View style={{ flexDirection:'row', marginHorizontal:20, alignItems: 'center', marginTop: 10 }}>
-                  <CheckBox
-                    disabled={false}
-                    boxType={'circle'}
-                    value={kisanLoan.selections.includes(item)}
-                    onValueChange={() => handleKisanLoanCheckboxChange(item)}
-                  />
-                  <Text style={{ marginLeft: 20 }}>{item}</Text>
-                </View>
 
-                  </>
+                {kisanLoanOption.map((item) => {
+                  return (
+                    <>
+                      <View style={{ flexDirection: 'row', marginHorizontal: 20, alignItems: 'center', marginTop: 10 }}>
+                        <CheckBox
+                          disabled={false}
+                          boxType={'circle'}
+                          value={kisanLoan.selections.includes(item)}
+                          onValueChange={() => handleKisanLoanCheckboxChange(item)}
+                        />
+                        <Text style={{ marginLeft: 20 }}>{item}</Text>
+                      </View>
 
-                )
-              })}
+                    </>
 
-              
+                  )
+                })}
+
+
               </View>
 
               <View style={{ flexDirection: 'row', justifyContent: 'center', }}>
@@ -903,9 +1074,15 @@ console.log('userid>>>',userId);
                     photo={true}
                   />
 
+
                   <TouchableOpacity onPress={() => tackPicture()} style={{
                     height: 60, width: 60, borderRadius: 30,
                     backgroundColor: 'red', alignSelf: 'center', position: 'absolute', bottom: 10
+                  }}></TouchableOpacity>
+
+                  <TouchableOpacity onPress={() => setcameraView(deviceFront.front)} style={{
+                    height: 60, width: 60, borderRadius: 30,
+                    backgroundColor: 'blue', alignSelf: 'center', position: 'absolute', bottom: 40, marginLeft: 30
                   }}></TouchableOpacity>
                 </Modal>
               </View>
@@ -951,12 +1128,55 @@ console.log('userid>>>',userId);
   )
 }
 
+
+
 const styles = StyleSheet.create({
   centeredView: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 22,
+  },
+  container: {
+    backgroundColor: 'white',
+    padding: 16,
+  },
+  dropdown: {
+    height: 50,
+    width: '80%',
+    borderColor: 'gray',
+    borderWidth: 0.5,
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    alignSelf: 'center',
+    marginTop: 30
+  },
+  icon: {
+    marginRight: 5,
+  },
+  label: {
+    position: 'absolute',
+    backgroundColor: 'white',
+    left: 22,
+    top: 8,
+    zIndex: 999,
+    paddingHorizontal: 8,
+    fontSize: 14,
+  },
+  placeholderStyle: {
+    fontSize: 16,
+    color: 'black'
+  },
+  selectedTextStyle: {
+    fontSize: 16,
+  },
+  iconStyle: {
+    width: 20,
+    height: 20,
+  },
+  inputSearchStyle: {
+    height: 40,
+    fontSize: 16,
   },
 });
 

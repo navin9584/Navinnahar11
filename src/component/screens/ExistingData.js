@@ -36,17 +36,7 @@ useEffect(() => {
   };
 }, []);
 
-useEffect(() => {
-  const unsubscribe = navigation.addListener('focus', () => {
-    // The screen is focused
-    // Call any action
-    AllExistingDataList()
-    
-  });
 
-  // Return the function to unsubscribe from the event so it gets removed on unmount
-  return unsubscribe;
-}, [navigation])
 useEffect(()=>{
   AllExistingDataList()
 },[])
@@ -80,9 +70,6 @@ useEffect(()=>{
               search:value
             };
          const searchData = await dispatch(SearchDataFromListApi(requestData))
-          // dispatch(SearchDataFromListApi(requestData))
-          // dispatch(FormListApi({user_id: userId}))
-          // console.log('searchData>>>>///////',searchData);
            setFilterData(value)
           navigation.navigate('ExistFormDetail',{data:searchData})
 
@@ -120,7 +107,7 @@ useEffect(()=>{
           maxHeight={300}
           labelField="votarcode"
           valueField="votarcode"
-          placeholder={!isFocus ? 'Select Data' : '...'}
+          placeholder={!isFocus ? 'सदस्य चुने' : '...'}
           searchPlaceholder="Search..."
           value={value}
           onFocus={() => setIsFocus(true)}
@@ -144,7 +131,7 @@ useEffect(()=>{
           maxHeight={300}
           labelField="votarcode"
           valueField="votarcode"
-          placeholder={!isFocus ? 'Select Data' : '...'}
+          placeholder={!isFocus ? 'सदस्य चुने' : '...'}
           searchPlaceholder="Search..."
           value={value}
           onFocus={() => setIsFocus(true)}

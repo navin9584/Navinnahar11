@@ -37,17 +37,29 @@ const SplashScreen = ({navigation}) =>{
         // console.log('locallogindata>>',loginData);
         const localdataemail = loginData && loginData.email
         if(localdataemail !== '' && localdataemail !== null && localdataemail !== undefined){
-           if(getAlldata !== undefined && getAlldata !== null){
+          //  if(getAlldata !== undefined && getAlldata !== null){
             navigation.navigate('Login')
             // navigation.navigate('DataButtons')
            }else{
             navigation.navigate('Login')
             // navigation.navigate('FormDetails')
            }
-        }else{
-            navigation.navigate('Login')
         }
-    }
+      // }
+
+          //   const getData = async() =>{
+  //     const loginData = await getLoginCred();
+  //      console.log('locallogindata>>',loginData);
+  //     const localdataemail = loginData && loginData.email
+  //     if(localdataemail !== '' && localdataemail !== null && localdataemail !== undefined && loginData.servaystatus == 1){
+  //         navigation.navigate('DataButtons')
+  //     }else if(localdataemail !== '' && localdataemail !== null && localdataemail !== undefined && loginData.servaystatus == 0){
+  //         navigation.navigate('FormDetails')
+  //     }else(
+  //       navigation.navigate('Login')
+  //     )
+  // }
+    
     return(
         <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
            <Image style={{height:200,width:300,resizeMode:'stretch'}} source={require('../../assets/surveyLogo.png')}/>

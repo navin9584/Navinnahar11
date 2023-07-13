@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 
 export const FormListApi = createAsyncThunk('FormListApi', async (data) => {
-    // console.log('dataMMMMMMMMMM',data);
+    console.log('dataMMMMMMMMMM',data);
     try{
     const formData = new FormData();
     formData.append('user_id',  data.user_id);

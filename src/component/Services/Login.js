@@ -69,8 +69,12 @@ const Login = ({ navigation }) => {
                if(response.payload.error === false){
                 if(response.payload.userdata.servaystatus == 0){
                     navigation.navigate("FormDetails")
+                    setEmail('')
+                    setPassword('')
                 }else{
                     navigation.navigate("DataButtons")
+                    setEmail('')
+                    setPassword('')
                 } 
                }else{
                 alert('please check your credentials')
