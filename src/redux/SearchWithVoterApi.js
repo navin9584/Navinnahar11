@@ -12,7 +12,7 @@ export const SearchDataFromListApi = createAsyncThunk('FormListApi', async (data
         body: formData,
       };
      
-    const res = await fetch('https://framedekho.in/servayapp/Api/searchwithvoter', obj);
+    const res = await fetch('https://umangsinghar.org/DataCollector/Api/searchwithvoter', obj);
     const result = await res.json()
     console.log('response>>>>//////////////////', result);
     return result;

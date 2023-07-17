@@ -37,7 +37,7 @@ export const UserFormDetailAction = createAsyncThunk('FormDetailAction', async (
         body: formData,
       };
      
-    const res = await fetch('https://framedekho.in/servayapp/Api/servaydata', obj);
+    const res = await fetch('https://umangsinghar.org/DataCollector/Api/servaydata', obj);
     const result = await res.json()
     // console.log('response>>>>', result);
     return result;

@@ -11,7 +11,7 @@ export const FormListApi = createAsyncThunk('FormListApi', async (data) => {
         body: formData,
       };
      
-    const res = await fetch('https://framedekho.in/servayapp/Api/list', obj);
+    const res = await fetch('https://umangsinghar.org/DataCollector/Api/list', obj);
     const result = await res.json()
     console.log('responseformlist>>>>', result);
     return result;

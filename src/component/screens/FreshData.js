@@ -3,7 +3,7 @@ import { View, Text, ScrollView, BackHandler, TouchableOpacity, StyleSheet, Link
 import CommonButton from '../ReusableComponent/ButtonCompo';
 import TextInputCompo from '../ReusableComponent/TextInputCompo';
 import CheckBox from '@react-native-community/checkbox';
-import { setfieldDataintoLoacal, getFilterDatafromdrodown, getfieldDatafromLoacal, getLoginCred,setfieldDataintoLoacalforone } from '../localStorage';
+import { setfieldDataintoLoacal, getFilterDatafromdrodown, getfieldDatafromLoacal, getLoginCred,setfieldDataintoLoacalforone ,setdateTimeLatLong, getdateTimeLatLong} from '../localStorage';
 import { Camera, useCameraDevices } from 'react-native-vision-camera';
 import Loader from '../ReusableComponent/Loader';
 import { FormDetailAction } from '../../redux/FormDetailApi';
@@ -109,6 +109,7 @@ const FreshData = ({ navigation }) => {
   const kisanLoanOption = ['नही', 'कांग्रेस', 'बीजेपी']
   const [isFocus, setIsFocus] = useState(false);
   const [countData,setCountData] = useState()
+  const [localLoginData ,setLocalLoginData] = useState()
   // const twoWheeler = "टू व्हीलर"
   // const fourWheeler = "फोर व्हीलर"
   // const noWheeler = "कोई वाहन नहीं है"
@@ -125,12 +126,14 @@ const FreshData = ({ navigation }) => {
   const formData = data.formData.data
   const loginData = data.loginData.data && data.loginData.data.userdata
   const userId = loginData && loginData.userId
-  // console.log('userid>>>', userId);
+  const localUserId =localLoginData && localLoginData.userId
+
+  // console.log('localLoginData>>>', localLoginData.userId);
   // console.log('listDataa>>>>>>>',data);
 
 
 
-  const onPressNext1 = () => {
+  const onPressNext1 = async() => {
     if (block == '') {
       setBadblock(true);
     } else {
@@ -165,6 +168,7 @@ const FreshData = ({ navigation }) => {
       setButtonShow3(false)
       setButtonShow4(false)
       setButtonShow5(false)
+      dateTimLatLongFun()
 
     }
   }
@@ -299,10 +303,13 @@ const FreshData = ({ navigation }) => {
     setButtonShow5(false)
   }
   const [camerView, setcameraView] = useState()
+  const [timeData, setTimeData] = useState()
 
   const devices = useCameraDevices("wide-angle-camera")
   const device = devices.back
   const deviceFront = device
+
+
 
   const rotateFun = () => {
     setcameraView(camerView)
@@ -320,13 +327,34 @@ const FreshData = ({ navigation }) => {
     checkPermission()
   }, [checkPermission, devices])
 
+  React.useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      localdateTimelat()
+      
+    });
+
+    // return unsubscribe;
+  }, [navigation]);
+
   useEffect(() => {
     getfieldDatafromLoacal()
     getData()
   }, [countData])
 
+  useEffect(() => {
+    localdateTimelat()
+},[timeData])
+
+const localdateTimelat =  async() => {
+    const getDateTimefromLoacal = await getdateTimeLatLong()
+     setTimeData(getDateTimefromLoacal)
+}
+
+// console.log('timeData///////////////>>>>',timeData)
+
   const getData = async () => {
     const loginData = await getLoginCred();
+    setLocalLoginData(loginData)
     // console.log('locallogindata>>', loginData);
 
   }
@@ -342,16 +370,31 @@ const FreshData = ({ navigation }) => {
   Geolocation.getCurrentPosition(info => setLongitude(info.coords.longitude));
   Geolocation.getCurrentPosition(info => setLatitude(info.coords.latitude));
   // Geolocation.getCurrentPosition(info => setDateTime(new Date(info.timestamp * 1000)));
+  const currentdate = new Date(); 
+  const datetime =currentdate.getDate() + "/"
+                + (currentdate.getMonth()+1)  + "/" 
+                + currentdate.getFullYear() + " @ "  
+                + currentdate.getHours() + ":"  
+                + currentdate.getMinutes() + ":" 
+                + currentdate.getSeconds();
+
+                // console.log('datetime??????????',datetime);
+
+const dateTimeInfo = {"startdate":datetime,"lat":latitude,"long":longitude,}
+  const dateTimLatLongFun = async()=>{
+       await setdateTimeLatLong(dateTimeInfo)
+  }
+
 
 
   const saveDataIntoLocal = async () => {
     let dataarray = []
     
     try {
-      const allfieldtostore = {"user_id":loginData.userId,"block_name_number":block,"votarcode":voterId,"booth_name_number":booth,"grampanchayat":grampanchayat,"village":village,"toll":toll,"name":name,
-        "fathername":fatherName,"jaati":cast,"age":age,"education":education,"mobile":mobile,"lat":latitude,"long":longitude,"address":address,"gender":gender,"vehicle":vehicle.selections.toString(),
-        "group":group,"government_employee":govtEmploye,"parti":party,"code":code.selections.toString(),"servayid":"servayid","respect_for_women":nariSamman.selections.toString(),
-        "farmer_loan_waiver":kisanLoan.selections.toString(),"facebook":facebook,"twitter":twitter,"instagram":instagram,"end_lat":latitude,"end_long":longitude,"startdate":'dateTime',"enddate":'dateTime'}
+      const allfieldtostore = {"user_id":localUserId,"block_name_number":block,"votarcode":voterId,"booth_name_number":booth,"grampanchayat":grampanchayat,"village":village,"toll":toll,"name":name,
+        "fathername":fatherName,"jaati":cast,"age":age,"education":education,"mobile":mobile,"lat":timeData.lat,"long":timeData.long,"address":address,"gender":gender,"vehicle":vehicle.selections.toString(),
+        "group":group,"government_employee":govtEmploye,"parti":party,"code":code.selections.toString(),"servayid":"servayid","respect_for_women":nariSamman.selections.toString(),image: capturedPhoto,
+        "farmer_loan_waiver":kisanLoan.selections.toString(),"facebook":facebook,"twitter":twitter,"instagram":instagram,"end_lat":latitude,"end_long":longitude,"startdate":timeData.startdate,"enddate":datetime}
 
 
         // "user_id": loginData.userId, "block_name_number": block, 'booth_name_number': booth, 'grampanchayat': grampanchayat, 'village': village, 'toll': toll,
@@ -417,7 +460,7 @@ const FreshData = ({ navigation }) => {
   const AllExistingDataList = async () => {
     try {
       const requestData = {
-        user_id: userId,
+        user_id: localLoginData.userId,
       };
        dispatch(FormListApi(requestData))
       // setListCount(AllData.payload.totalrow)
@@ -517,10 +560,10 @@ const FreshData = ({ navigation }) => {
     <View style={{ flex: 1 }}>
       <ScrollView showsVerticalScrollIndicator={false} >
         <View>
+          
           {buttonShow1 &&
             <View>
               <Text style={{ textAlign: 'center', fontSize: 18, color: 'black', marginTop: 10 }}>{'गंधवानी विधानसभा 197'}</Text>
-
               <View style={{ marginTop: 20 }}>
 
                 <Text style={{ top: 20, fontSize: 16, fontWeight: '500', color: 'black', textAlign: 'center' }}> ब्लॉक नाम </Text>
@@ -655,8 +698,8 @@ const FreshData = ({ navigation }) => {
                     setCast(itemValue)
                   }>
                   <Picker.Item label="लिस्ट से चुनै" value="" />
-                  <Picker.Item label="भील" value="भील" />
-                  <Picker.Item label="भीलाला" value="भीलाला" />
+                  <Picker.Item label="एस टी (भील)" value="एस टी (भील)" />
+                  <Picker.Item label="एस टी (भीलाला)" value="एस टी (भीलाला)" />
                   <Picker.Item label="मुस्लिम" value="मुस्लिम" />
                   <Picker.Item label="ब्राह्मण" value="ब्राह्मण" />
                   <Picker.Item label="सिरवी" value="सिरवी" />
@@ -668,7 +711,6 @@ const FreshData = ({ navigation }) => {
                   <Picker.Item label="राठौर" value="राठौर" />
                   <Picker.Item label="जैन" value="जैन" />
                   <Picker.Item label="बोहरा" value="बोहरा" />
-                  <Picker.Item label="एस टी" value="बोहरा टी" />
                   <Picker.Item label="अन्य" value="अन्य" />
                 </Picker>
               </View>
@@ -1080,10 +1122,10 @@ const FreshData = ({ navigation }) => {
                     backgroundColor: 'red', alignSelf: 'center', position: 'absolute', bottom: 10
                   }}></TouchableOpacity>
 
-                  <TouchableOpacity onPress={() => setcameraView(deviceFront.front)} style={{
+                  {/* <TouchableOpacity onPress={() => setcameraView(deviceFront.front)} style={{
                     height: 60, width: 60, borderRadius: 30,
                     backgroundColor: 'blue', alignSelf: 'center', position: 'absolute', bottom: 40, marginLeft: 30
-                  }}></TouchableOpacity>
+                  }}></TouchableOpacity> */}
                 </Modal>
               </View>
 

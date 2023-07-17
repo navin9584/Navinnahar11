@@ -16,7 +16,7 @@ const DataButtons = ({navigation}) => {
     const [allAsyncData, setAllAsyncData] = useState()
 
     const allAsyncDatacount = allAsyncData && allAsyncData!==null || allAsyncData !==undefined ?allAsyncData&& allAsyncData.length : 0
-    console.log('data>>>>>>>>>>..////////',data)
+    console.log('data>>>>>>>>>>..////////',allAsyncDatacount)
     React.useEffect(() => {
         const unsubscribe = navigation.addListener('focus', () => {
             localsavedData()
@@ -68,6 +68,11 @@ const DataButtons = ({navigation}) => {
                 setAllAsyncData(0)
                 alert('डेटा सेव हो गया!')
             }
+            // else if(data.payload.error === true && allAsyncDatacount != null ){
+            //     alert('सर्वर की समस्या आ रही है!')
+            // }else{
+            //     alert('सर्वर की समस्या आ रही dhuddhहै!')
+            // }
            
            
             //    if(pushDataintoArray[0] == null || pushDataintoArray[0] == undefined){
@@ -95,7 +100,7 @@ const DataButtons = ({navigation}) => {
 
     const LogoutCallFun = async()=>{
         await clearLoginData()
-        await clearDatafromLoacal()
+        // await clearDatafromLoacal()
         navigation.navigate('Login')
     }
     const Logout = async ()=>{

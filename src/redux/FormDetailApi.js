@@ -28,6 +28,7 @@ export const FormDetailAction = createAsyncThunk('FormDetailAction', async (data
             // console.log('value>>>>>', value);
             const formData = new FormData();
             formData.append('datafrom', JSON.stringify(data));
+            // formData.append('files[]', '');
     //         formData.append('datafrom', JSON.stringify(value));
     //         // formData.append('block_name_number', value.block);
     //         // formData.append('booth_name_number', value.booth);
@@ -62,7 +63,7 @@ export const FormDetailAction = createAsyncThunk('FormDetailAction', async (data
             };
 
             console.log('formData>>>>>>',obj);
-            const res = await fetch('https://framedekho.in/servayapp/Api/bulkservay', obj);
+            const res = await fetch('https://umangsinghar.org/DataCollector/Api/bulkservay', obj);
             const result = await res.json()
             console.log('response////////////////////>>>>', result);
             return result;

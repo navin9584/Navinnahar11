@@ -5,6 +5,7 @@ const FIELD_DATA_KEY = 'field_data_key'
 const FIELD_DATA_FOR_ONEDATA = 'field_data_for_onedata'
 const FILTER_FROM_DROPDOWN = 'filter_from_dropdown'
 const ARRAY_DATA = 'array_data'
+const DATE_TIME_LAT_LONG = 'date_time_lat_long'
 
 export const setData = async (key, value) => {
     await AsyncStorage.setItem(key, value);
@@ -145,3 +146,21 @@ export const getFilterData = async () => {
     let data = await getData(ARRAY_DATA) 
     return JSON.parse(data)
 }
+
+export const setdateTimeLatLong = async (data) => {
+    let json = JSON.stringify(data);
+    console.log('setdateTimeLatLong>>>>>>>',json);
+    let saved = await setData(DATE_TIME_LAT_LONG, json)
+    if (saved) {
+        return true
+    }
+    else {
+        return false
+    }
+ }
+ 
+ export const getdateTimeLatLong = async () => {
+     let data = await getData(DATE_TIME_LAT_LONG) 
+     return JSON.parse(data)
+ }
+

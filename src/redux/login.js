@@ -12,7 +12,7 @@ export const LoginAction = createAsyncThunk('fetchApi', async (data) => {
         body: formData,
       };
      
-    const res = await fetch('https://framedekho.in/servayapp/Api/login', obj);
+    const res = await fetch('https://umangsinghar.org/DataCollector/Api/login', obj);
     const result = await res.json()
     if(result.error == false){
         await setLoginCred(result.userdata)
