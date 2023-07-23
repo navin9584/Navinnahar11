@@ -13,7 +13,7 @@ export const FormListApi = createAsyncThunk('FormListApi', async (data) => {
      
     const res = await fetch('https://umangsinghar.org/DataCollector/Api/list', obj);
     const result = await res.json()
-    console.log('responseformlist>>>>', result);
+    // console.log('responseformlist>>>>', result);
     return result;
     }catch(error){
         console.log('errorlistdatarequest>>>>',error)

@@ -104,7 +104,7 @@ const FreshData = ({ navigation }) => {
   const [nariSamman, setNariSamman] = useState({ selections: [] })
   const [kisanLoan, setKisanLoan] = useState({ selections: [] })
   const options = ['2 व्हीलर', '4 व्हीलर', 'कोई वाहन नहीं है']
-  const codeOption = ['BC (बूथ कमीटी)','PP (पेज प्रभारी)', 'IP (प्रभावशाली व्यक्ति)','FH(परिवार का मुखिया)','SC (सीनियर कांग्रेस)','YC (यूथ कांग्रेस)', 'FP (फलिया प्रभारी)', 'ER (इलेक्शन)',]
+  const codeOption = ['BC (बूथ कमेटी)','PP (पेज प्रभारी)', 'IP (प्रभावशाली व्यक्ति)','FH (परिवार का मुखिया)','SC (सीनियर कांग्रेस)','YC (यूथ कांग्रेस)', 'FP (फलिया प्रभारी)', 'ER (चुनाव प्रभारी)','वरिष्ठ','युवा']
   const narisammanOption = ['Yes', 'No']
   const kisanLoanOption = ['नही', 'कांग्रेस', 'बीजेपी']
   const [isFocus, setIsFocus] = useState(false);
@@ -127,6 +127,7 @@ const FreshData = ({ navigation }) => {
   const loginData = data.loginData.data && data.loginData.data.userdata
   const userId = loginData && loginData.userId
   const localUserId =localLoginData && localLoginData.userId
+  const localServayId =localLoginData && localLoginData.servayid
 
   // console.log('localLoginData>>>', localLoginData.userId);
   // console.log('listDataa>>>>>>>',data);
@@ -327,14 +328,14 @@ const FreshData = ({ navigation }) => {
     checkPermission()
   }, [checkPermission, devices])
 
-  React.useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      localdateTimelat()
+  // React.useEffect(() => {
+  //   const unsubscribe = navigation.addListener('focus', () => {
+  //     localdateTimelat()
       
-    });
+  //   });
 
-    // return unsubscribe;
-  }, [navigation]);
+  //   // return unsubscribe;
+  // }, [navigation]);
 
   useEffect(() => {
     getfieldDatafromLoacal()
@@ -345,17 +346,19 @@ const FreshData = ({ navigation }) => {
     localdateTimelat()
 },[timeData])
 
+
+// console.log('timeData>>>>',timeData);
 const localdateTimelat =  async() => {
     const getDateTimefromLoacal = await getdateTimeLatLong()
      setTimeData(getDateTimefromLoacal)
 }
 
-// console.log('timeData///////////////>>>>',timeData)
+
 
   const getData = async () => {
     const loginData = await getLoginCred();
     setLocalLoginData(loginData)
-    // console.log('locallogindata>>', loginData);
+    
 
   }
 
@@ -371,76 +374,61 @@ const localdateTimelat =  async() => {
   Geolocation.getCurrentPosition(info => setLatitude(info.coords.latitude));
   // Geolocation.getCurrentPosition(info => setDateTime(new Date(info.timestamp * 1000)));
   const currentdate = new Date(); 
-  const datetime =currentdate.getDate() + "/"
+  const datetime = currentdate.getDate() + "/"
                 + (currentdate.getMonth()+1)  + "/" 
                 + currentdate.getFullYear() + " @ "  
                 + currentdate.getHours() + ":"  
                 + currentdate.getMinutes() + ":" 
                 + currentdate.getSeconds();
 
-                // console.log('datetime??????????',datetime);
+                // console.log('datetime??????????',currentdate);
 
-const dateTimeInfo = {"startdate":datetime,"lat":latitude,"long":longitude,}
+const dateTimeInfo = {"startdate": currentdate.toString(),"lat":latitude,"long":longitude}
   const dateTimLatLongFun = async()=>{
        await setdateTimeLatLong(dateTimeInfo)
   }
 
 
-
+ const latvalue = timeData && timeData.lat ? timeData.lat : ''
+ const longvalue = timeData && timeData.long ? timeData.long : ''
+ const startdateValue = timeData && timeData.startdate ? timeData.startdate : ''
+ const enddateValue = timeData && timeData.enddate ? timeData.enddate : ''
+// console.log('startdateValue//',dateTimeInfo);
   const saveDataIntoLocal = async () => {
     let dataarray = []
+    let newArray = await getfieldDatafromLoacal()
+   
     
-    try {
-      const allfieldtostore = {"user_id":localUserId,"block_name_number":block,"votarcode":voterId,"booth_name_number":booth,"grampanchayat":grampanchayat,"village":village,"toll":toll,"name":name,
-        "fathername":fatherName,"jaati":cast,"age":age,"education":education,"mobile":mobile,"lat":timeData.lat,"long":timeData.long,"address":address,"gender":gender,"vehicle":vehicle.selections.toString(),
-        "group":group,"government_employee":govtEmploye,"parti":party,"code":code.selections.toString(),"servayid":"servayid","respect_for_women":nariSamman.selections.toString(),image: capturedPhoto,
-        "farmer_loan_waiver":kisanLoan.selections.toString(),"facebook":facebook,"twitter":twitter,"instagram":instagram,"end_lat":latitude,"end_long":longitude,"startdate":timeData.startdate,"enddate":datetime}
+      const allfieldtostore = {"user_id":localUserId,"block_name_number":block,"votarcode":voterId,"boothName":booth,"boothNumber":boothno,"grampanchayat":grampanchayat,"village":village,"toll":toll,"name":name,
+        "fathername":fatherName,"jaati":cast,"age":age,"education":education,"mobile":mobile,"lat":latvalue,"long":longvalue,"address":address,"gender":gender,"vehicle":vehicle.selections.toString(),
+        "group":group,"government_employee":govtEmploye,"parti":party,"code":code.selections.toString(),"servayid":"0","respect_for_women":nariSamman.selections.toString(),"image": capturedPhoto,
+        "farmer_loan_waiver":kisanLoan.selections.toString(),"facebook":facebook,"twitter":twitter,"instagram":instagram,"end_lat":latitude,"end_long":longitude,"startdate":startdateValue,"enddate":currentdate.toString()}
+    
 
-
-        // "user_id": loginData.userId, "block_name_number": block, 'booth_name_number': booth, 'grampanchayat': grampanchayat, 'village': village, 'toll': toll,
-        // "name": name, "fatherName": fatherName, "jaati": cast, "age": age, "education": education, "mobile": mobile,
-        // "voterId": voterId, "address": address, "gender": gender, "vehicle": vehicle.selections.toString(), "group": group, "government_employee": govtEmploye,
-        // "parti": party, "code": code.selections.toString(),
-        //  "respect_for_women": nariSamman.selections.toString(),
-        // "farmer_loan_waiver": kisanLoan.selections.toString(), "facebook": facebook, "instagram": instagram, "twitter": twitter, "long": longitude, "lat": latitude,
-        // "servayid":"servayid","end_lat":"0.009090","end_long":"0.00","startdate":"2023-07-12","enddate":"2023-07-12"
-      
-      let newArray = await getfieldDatafromLoacal()
-      console.log('newarrrayayayyayyayy', newArray);
-      if (newArray == null || newArray == undefined) {
-        dataarray.push(allfieldtostore)
-        await setfieldDataintoLoacal(dataarray);
-        console.log('dataarray>>>>>>>>>>>', dataarray);
-      } else {
+      if (newArray != null || newArray != undefined) {
         newArray.push(allfieldtostore)
         await setfieldDataintoLoacal(newArray);
+          // navigation.navigate('DataButtons')
+        console.log('newArray???????????2', typeof(newArray));
+
+      } else {
+        dataarray.push(allfieldtostore)
+        await setfieldDataintoLoacal(dataarray);
+        console.log('dataarray>>>>>>>>>>>', typeof(dataarray));
+        // navigation.navigate('DataButtons')
       }
       console.log('Data saved successfully.');
-      // getDataLocalData()
       navigation.navigate('DataButtons')
-    } catch (error) {
-      console.log('Error saving data:', error);
-    }
+      // getDataLocalData()
+     
+    } 
     //   navigation.navigate("");
-    console.log('countsssssssssssssssss',countData);
+    // console.log('countsssssssssssssssss',countData);
   
     
-  };
+  // };
 
-  const getDataLocalData = async () => {
-    try {
-      const value = await getfieldDatafromLoacal()
-      if(value !== null) {
-        setCountData(value)
-        // value previously stored
-        console.log('value>>>>>>??????????????????????????',value.length);
-      }
-    } catch(e) {
-      // error reading value
-    }
-  }
- 
-
+  
   const saveApiData = async () => {
     const allfieldtostore = [{
       user_id: userId, block: block, booth: booth, grampanchayat: grampanchayat, village: village, toll: toll,
@@ -453,7 +441,7 @@ const dateTimeInfo = {"startdate":datetime,"lat":latitude,"long":longitude,}
     const datalist = allfieldtostore
     // console.log('datalist/////////////////////>>', datalist);
     dispatch(FormDetailAction(datalist))
-    AllExistingDataList()
+    // AllExistingDataList()
     // navigation.navigate('DataButtons')
   };
 
@@ -833,17 +821,17 @@ const dateTimeInfo = {"startdate":datetime,"lat":latitude,"long":longitude,}
               {badgroup === true && <Text style={{ color: "red", marginLeft: 30 }}>*Required field</Text>}
               <Text style={{ marginTop: 20, fontSize: 16, fontWeight: '500', color: 'black', marginLeft: 30 }}> वाहन </Text>
 
-              {options.map((item, key) => {
+              {options.map((item, index) => {
                 return (
                   <>
-                    <View>
+                    <View index={index}>
 
                       <View style={{ flexDirection: 'row', alignItems: "center", marginLeft: 40 }}>
                         <View style={{}}>
                           <CheckBox
 
                             disabled={false}
-                            key={key}
+                            key={item}
                             tintColors={true ? '#9E663C' : '#4DABEC'}
                             boxType={'circle'}
                             value={vehicle.selections.includes(item)}
@@ -944,10 +932,10 @@ const dateTimeInfo = {"startdate":datetime,"lat":latitude,"long":longitude,}
               </View>
               <Text style={{ marginTop: 20, fontSize: 16, fontWeight: '500', color: 'black', marginLeft: 30 }}>कोड</Text>
 
-              {codeOption.map((item) => {
+              {codeOption.map((item,index) => {
                 return (
                   <>
-                    <View style={{ flexDirection: 'row', marginTop: 10,marginLeft:50 }}>
+                    <View index={index} style={{ flexDirection: 'row', marginTop: 10,marginLeft:50 }}>
                       <CheckBox
 
                         disabled={false}
@@ -960,7 +948,7 @@ const dateTimeInfo = {"startdate":datetime,"lat":latitude,"long":longitude,}
                       />
 
                       <View >
-                        <Text style={{ fontSize: 16, fontWeight: '500', color: 'black',marginLeft:10 }}>{item}</Text>
+                        <Text style={{ fontSize: 16, fontWeight: '500', color: 'black',marginLeft:10,marginTop:5 }}>{item}</Text>
                       </View>
                     </View>
                   </>
@@ -1005,10 +993,10 @@ const dateTimeInfo = {"startdate":datetime,"lat":latitude,"long":longitude,}
               <Text style={{ marginTop: 20, fontSize: 16, fontWeight: '500', color: 'black', marginLeft: 30 }}>नारी सम्मान</Text>
               {/* {badNariSamman === true && <Text style={{ color: "red", marginLeft: 30 }}>*Required field</Text>} */}
               <View style={{ flexDirection: 'row' }}>
-                {narisammanOption.map((item) => {
+                {narisammanOption.map((item,index) => {
                   return (
                     <>
-                      <View style={{ flexDirection: 'row', marginHorizontal: 20, alignItems: 'center', marginTop: 10 }}>
+                      <View index={index} style={{ flexDirection: 'row', marginHorizontal: 20, alignItems: 'center', marginTop: 10 }}>
                         <CheckBox
                           disabled={false}
                           boxType={'circle'}
@@ -1029,10 +1017,10 @@ const dateTimeInfo = {"startdate":datetime,"lat":latitude,"long":longitude,}
               <Text style={{ marginTop: 20, fontSize: 16, fontWeight: '500', color: 'black', marginLeft: 30 }}>किसान कर्ज माफी</Text>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 }}>
 
-                {kisanLoanOption.map((item) => {
+                {kisanLoanOption.map((item,index) => {
                   return (
                     <>
-                      <View style={{ flexDirection: 'row', marginHorizontal: 20, alignItems: 'center', marginTop: 10 }}>
+                      <View index={index} style={{ flexDirection: 'row', marginHorizontal: 20, alignItems: 'center', marginTop: 10 }}>
                         <CheckBox
                           disabled={false}
                           boxType={'circle'}
@@ -1122,10 +1110,7 @@ const dateTimeInfo = {"startdate":datetime,"lat":latitude,"long":longitude,}
                     backgroundColor: 'red', alignSelf: 'center', position: 'absolute', bottom: 10
                   }}></TouchableOpacity>
 
-                  {/* <TouchableOpacity onPress={() => setcameraView(deviceFront.front)} style={{
-                    height: 60, width: 60, borderRadius: 30,
-                    backgroundColor: 'blue', alignSelf: 'center', position: 'absolute', bottom: 40, marginLeft: 30
-                  }}></TouchableOpacity> */}
+                
                 </Modal>
               </View>
 

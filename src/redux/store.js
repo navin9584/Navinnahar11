@@ -4,6 +4,7 @@ import formDetailSlice from './FormDetailApi'
 import SearchDataListSlice from './SearchWithVoterApi'
 import FormListlSlice from './FormListApi'
 import userFormDetailSlice from './userFormApi'
+import EditApiSlice from './formeditApi'
 
 
 export const store = configureStore({
@@ -12,6 +13,7 @@ export const store = configureStore({
         formData: formDetailSlice,
         FormSearchData: SearchDataListSlice,
         FormListData: FormListlSlice,
-        userFormData: userFormDetailSlice
+        userFormData: userFormDetailSlice,
+        editServayData: EditApiSlice
     }
   });

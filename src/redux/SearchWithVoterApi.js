@@ -14,7 +14,7 @@ export const SearchDataFromListApi = createAsyncThunk('FormListApi', async (data
      
     const res = await fetch('https://umangsinghar.org/DataCollector/Api/searchwithvoter', obj);
     const result = await res.json()
-    console.log('response>>>>//////////////////', result);
+    // console.log('response>>>>//////////////////', result);
     return result;
     }catch(error){
         console.log('error>>>>',error)

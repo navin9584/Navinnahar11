@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 
-export const UserFormDetailAction = createAsyncThunk('FormDetailAction', async (alldata) => {
-     const data = alldata[0]
+export const ServayDataEditAction = createAsyncThunk('ServayDataEditAction', async (alldata) => {
+     const data = alldata
      console.log('dataMMMMMMMMMM',data);
     try{
     const formData = new FormData();
@@ -29,17 +29,16 @@ export const UserFormDetailAction = createAsyncThunk('FormDetailAction', async (
     formData.append('respect_for_women', data.respect_for_women);
     formData.append('farmer_loan_waiver', data.farmer_loan_waiver);
     formData.append('image',  data.image);
-    formData.append('servayid',  data.servayid);
     formData.append('lat',  data.lat);
     formData.append('long',  data.long);
     formData.append('instagram',  data.instagram);
     formData.append('twitter',  data.twitter);
     formData.append('facebook',  data.facebook);
-     formData.append('end_lat',  data.end_lat);
+    formData.append('end_lat',  data.end_lat);
     formData.append('end_long',  data.end_long);
     formData.append('startdate',  data.enddate);
-     formData.append('enddate',  data.enddate);
-      
+    formData.append('enddate',  data.enddate);
+    //   formData.append('servayid',  data.servayid);
     // console.log('data>>>>>', formData);
     
     let obj = {
@@ -47,9 +46,9 @@ export const UserFormDetailAction = createAsyncThunk('FormDetailAction', async (
         body: formData,
       };
      
-    const res = await fetch('https://umangsinghar.org/DataCollector/Api/servaydata', obj);
+    const res = await fetch('https://umangsinghar.org/DataCollector/Api/edit', obj);
     const result = await res.json()
-    console.log('responseuserform>>>>>>>>>', result);
+    console.log('response>>>>editdata??????????/', result);
     return result;
     }catch(error){
         console.log('error>>>>',error)
@@ -59,7 +58,7 @@ export const UserFormDetailAction = createAsyncThunk('FormDetailAction', async (
 })
 
 
-const UserFormDetailSlice = createSlice({
+const EditApiSlice = createSlice({
     name: 'products',
     initialState: {
         data: null,
@@ -67,14 +66,14 @@ const UserFormDetailSlice = createSlice({
         isError: false
     },
     extraReducers: builder => {
-        builder.addCase(UserFormDetailAction.pending, (state, action) => {
+        builder.addCase(ServayDataEditAction.pending, (state, action) => {
             state.isLoader = true;
         });
-        builder.addCase(UserFormDetailAction.fulfilled, (state, action) => {
+        builder.addCase(ServayDataEditAction.fulfilled, (state, action) => {
             state.isLoader = false;
             state.data = action.payload;
         });
-        builder.addCase(UserFormDetailAction.rejected, (state, action) => {
+        builder.addCase(ServayDataEditAction.rejected, (state, action) => {
             state.isLoader = false;
             state.isError = true;
         })
@@ -83,4 +82,4 @@ const UserFormDetailSlice = createSlice({
     }
 })
 
-export default UserFormDetailSlice.reducer;
+export default EditApiSlice.reducer;

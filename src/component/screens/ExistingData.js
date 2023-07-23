@@ -5,7 +5,7 @@ import SelectDropdown from 'react-native-select-dropdown'
 import { Dropdown } from 'react-native-element-dropdown';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {getfieldDatafromLoacal,setFilterData,setFilterDatafromdrodown } from '../localStorage';
+import {getfieldDatafromLoacal,setFilterData,setFilterDatafromdrodown,getLoginCred } from '../localStorage';
 import {FormListApi} from '../../redux/FormListApi';
 import {SearchDataFromListApi} from '../../redux/SearchWithVoterApi';
 const {width} = Dimensions.get('window');
@@ -15,14 +15,16 @@ const LocalData =({navigation})=>{
   const data = useSelector(state=> state);
   const loginData = data.loginData.data
   const userId = loginData&&loginData.userdata && loginData.userdata.userId
+
 const [getAlldata,setAllData] = useState()
 const [allDataList,setAllDataList] = useState()
 const [value, setValue] = useState(null);
 const [badValue, setBadValue] = useState(false);
 const [isFocus, setIsFocus] = useState(false);
+const [localLoginData ,setLocalLoginData] = useState()
+const localUserId =localLoginData && localLoginData.userId
 
- 
-// console.log('allDataList>>>',allDataList);
+ console.log('localUserId>>>',localUserId);
 
 function handleBackButtonClick() {
   navigation.goBack();
@@ -39,15 +41,19 @@ useEffect(() => {
 
 useEffect(()=>{
   AllExistingDataList()
+  getData()
 },[])
 
 
-    
+const getData = async () => {
+  const loginData = await getLoginCred();
+  setLocalLoginData(loginData)
+}
     const AllExistingDataList = async () => {
       let datalist = []
       try {
           const requestData = {
-              user_id: userId,
+              user_id: localUserId,
           };
           const AllData = await dispatch(FormListApi(requestData))
           const data = AllData && AllData.payload.userdata
@@ -66,7 +72,7 @@ useEffect(()=>{
       }else{
         setBadValue(false)
         const requestData = {
-              user_id: userId,
+              user_id: localUserId,
               search:value
             };
          const searchData = await dispatch(SearchDataFromListApi(requestData))

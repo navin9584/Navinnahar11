@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import {setLoginCred} from '../component/localStorage'
 export const LoginAction = createAsyncThunk('fetchApi', async (data) => {
+    console.log('data>>>>>',data);
     try{
     const formData = new FormData();
     formData.append('email',  data.email);
@@ -17,10 +18,10 @@ export const LoginAction = createAsyncThunk('fetchApi', async (data) => {
     if(result.error == false){
         await setLoginCred(result.userdata)
     }
-    // console.log('response>>>>', result);
+     console.log('response>>>>', result);
     return result;
     }catch(error){
-        // console.log('error>>>>',error)
+    console.log('error>>>>',error)
     }
     
 

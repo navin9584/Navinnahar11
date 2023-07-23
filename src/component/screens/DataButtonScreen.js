@@ -2,10 +2,11 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, BackHandler,Alert } from 'react-native'
 import CommonButton from '../ReusableComponent/ButtonCompo';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
-import { setfieldDataintoLoacal, getfieldDatafromLoacal, checkNetworkConnectivity, clearDatafromLoacal ,clearLoginData,getfieldDatafromLoacalforone} from '../localStorage';
+import { setfieldDataintoLoacal, getfieldDatafromLoacal, checkNetworkConnectivity, clearDatafromLoacal ,clearLoginData,getLoginCred} from '../localStorage';
 import { FormDetailAction } from '../../redux/FormDetailApi';
 import { FormListApi } from '../../redux/FormListApi';
 import { useDispatch, useSelector } from 'react-redux';
+import Loader from '../ReusableComponent/Loader';
 const DataButtons = ({navigation}) => {
     // const navigation = useNavigation()
     const data = useSelector(state => state);
@@ -14,9 +15,11 @@ const DataButtons = ({navigation}) => {
     const [listCount, setListCount] = useState()
     const userId = loginData && loginData.userdata && loginData.userdata.userId
     const [allAsyncData, setAllAsyncData] = useState()
+    const [localLoginData ,setLocalLoginData] = useState()
+    const localUserId =localLoginData && localLoginData.userId
+
 
     const allAsyncDatacount = allAsyncData && allAsyncData!==null || allAsyncData !==undefined ?allAsyncData&& allAsyncData.length : 0
-    console.log('data>>>>>>>>>>..////////',allAsyncDatacount)
     React.useEffect(() => {
         const unsubscribe = navigation.addListener('focus', () => {
             localsavedData()
@@ -28,13 +31,22 @@ const DataButtons = ({navigation}) => {
    
     useEffect(() => {
         localsavedData()
+        getData()
     },[])
+
+    
     
     const localsavedData =  async() => {
         const getAllLocalData = await getfieldDatafromLoacal()
         setAllAsyncData(getAllLocalData)
-        console.log('getAllLocalData>>>>',allAsyncData.length)
+        
     }
+
+    const getData = async () => {
+        const loginData = await getLoginCred();
+        setLocalLoginData(loginData)
+        
+    }    
 
     useEffect(()=>{
         // AllExistingDataList()
@@ -60,43 +72,33 @@ const DataButtons = ({navigation}) => {
     
         if (hasNetwork === true) {
             pushDataintoArray.push(getAllLocalData)
-         const data =  await dispatch(FormDetailAction(allAsyncData))
-            // AllExistingDataList()
-            if(data.payload.error === false){
-                console.log('apiresodfh', data.payload.error);
-                await clearDatafromLoacal()
-                setAllAsyncData(0)
-                alert('डेटा सेव हो गया!')
-            }
-            // else if(data.payload.error === true && allAsyncDatacount != null ){
-            //     alert('सर्वर की समस्या आ रही है!')
-            // }else{
-            //     alert('सर्वर की समस्या आ रही dhuddhहै!')
-            // }
-           
-           
-            //    if(pushDataintoArray[0] == null || pushDataintoArray[0] == undefined){
-            //     console.log('pushDataintoArray>>>',pushDataintoArray);
-            //     alert('No data to sync')
-            // }
-
-
-        } else {
+         const data =  await dispatch(FormDetailAction(getAllLocalData))
+                if(data.payload.error === false ){
+                      await clearDatafromLoacal()
+                     const getlocal = await getfieldDatafromLoacal()
+                      setAllAsyncData(getlocal)
+                    Alert.alert('डेटा सेव हो गया!')
+                }else if(data.payload.error === true && getAllLocalData != null){
+                    Alert.alert('सर्वर की समस्या आ रही है !')
+                }
+                 AllExistingDataList()
+                
+        } else{
             alert('Internet not available')
         }
     }
 
-    // const AllExistingDataList = async () => {
-    //     try {
-    //         const requestData = {
-    //             user_id: userId,
-    //         };
-    //         await dispatch(FormListApi(requestData))
-    //         // setListCount(AllData.payload.totalrow)
-    //     } catch (error) {
-    //         console.log('errorrrrrrr', error);
-    //     }
-    // }
+    const AllExistingDataList = async () => {
+        try {
+            const requestData = {
+                user_id: localUserId,
+            };
+             await dispatch(FormListApi({user_id: localUserId}))
+            // setListCount(AllData.payload.totalrow)
+        } catch (error) {
+            console.log('errorrrrrrr', error);
+        }
+    }
 
     const LogoutCallFun = async()=>{
         await clearLoginData()
@@ -127,7 +129,7 @@ const DataButtons = ({navigation}) => {
 
     return (
         <View style={{ marginTop: 50 }}>
-
+         {data.formData && data.formData.isLoader === true && allAsyncDatacount != null && <Loader />}
             <CommonButton
                 title={'नवीन सदस्य'}
                 bgColor={'#000'}
@@ -158,6 +160,7 @@ const DataButtons = ({navigation}) => {
                 bgColor={'#000'}
                 textColor={"#fff"}
                 customStyle={{ width: '80%', height: 50 }}
+                disabled={allAsyncDatacount != null ? false :true}
                 onPress={() => onpressSync()}
             />
 

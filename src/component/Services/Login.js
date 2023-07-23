@@ -62,11 +62,12 @@ const Login = ({ navigation }) => {
         password: password,
       };
         const loginApiFunction = async () => {
+            let hasNetwork = await checkNetworkConnectivity();
              try{
                const response = await dispatch(LoginAction(requestData))
-               console.log('response>>>',response);
+               console.log('response>>>',response.payload);
               
-               if(response.payload.error === false){
+               if(response.payload.error === false ){
                 if(response.payload.userdata.servaystatus == 0){
                     navigation.navigate("FormDetails")
                     setEmail('')
@@ -76,7 +77,8 @@ const Login = ({ navigation }) => {
                     setEmail('')
                     setPassword('')
                 } 
-               }else{
+               }
+               else{
                 alert('please check your credentials')
                }
              }catch(error){

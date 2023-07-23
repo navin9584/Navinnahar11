@@ -67,16 +67,13 @@ export const setfieldDataintoLoacal = async (data) => {
 
 export const getfieldDatafromLoacal = async () => {
     let data = await getData(FIELD_DATA_KEY) 
-  
         return JSON.parse(data)
     
           
 }
 
 export const setfieldDataintoLoacalforone = async (data) => {
-    // console.log('setfieldDatafromLoacalforone>???????????????????>>',data);
     let json = JSON.stringify(data);
- //    console.log('setdata>>>>>>>>>>',json);
     let saved = await setData(FIELD_DATA_FOR_ONEDATA, json)
     if (saved) {
         return true

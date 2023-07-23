@@ -4,7 +4,7 @@ import { View, Text, ScrollView, BackHandler, TouchableOpacity, StyleSheet, Link
 import CommonButton from '../ReusableComponent/ButtonCompo';
 import TextInputCompo from '../ReusableComponent/TextInputCompo';
 import CheckBox from '@react-native-community/checkbox';
-import { getFilterData, getLoginCred,getfieldDatafromLoacal,setfieldDataintoLoacal } from '../localStorage';
+import { getFilterData, getLoginCred,getfieldDatafromLoacal,setfieldDataintoLoacal,getdateTimeLatLong } from '../localStorage';
 import { Camera, useCameraDevices } from 'react-native-vision-camera';
 import Loader from '../ReusableComponent/Loader';
 import { useDispatch, useSelector } from 'react-redux';
@@ -12,6 +12,7 @@ import { FormDetailAction } from '../../redux/FormDetailApi';
 import { checkNetworkConnectivity } from '../localStorage';
 import Geolocation from '@react-native-community/geolocation';
 import { FormListApi } from '../../redux/FormListApi';
+import { ServayDataEditAction } from '../../redux/formeditApi';
 
 
 const ExistFormDetail = ({ navigation,route }) => {
@@ -27,26 +28,24 @@ const [dropdownData ,setDropdownData] = useState()
   const userId = loginData && loginData.userdata && loginData.userdata.userId
    const filterData = param && param.data.payload && param.data.payload && param.data.payload.userdata
   const formListData = data.FormListData && data.FormListData.data && data.FormListData.data.userdata
-
+  const localUserId =localLoginData && localLoginData.userId
 
 const afterfilterdata =formListData && formListData.filter((f)=>{
   return f.votarcode == dropdownData
 })
 
-// const filterData =  afterfilterdata 
-// console.log('afterfilterdata>>>>',typeof(filterData));
 
-// const filterData = afterfilterdata
-// setFilterValue(afterfilterdata)
  
   const getDetails = (type) => {
     if (filterData && filterData[0]) {
       switch (type) {
         case "block":
-          console.log('filterData>>>>>>>>>>>>>>>>>>>>>>', filterData[0].vehicle );
+          console.log('filterData>>>>>>>>>>>>>>>>>>>>>>', filterData[0] );
           return filterData && filterData[0].block_name_number
         case "booth":
-          return filterData[0].booth_name_number
+          return filterData[0].boothname
+          case "boothno":
+            return filterData[0].boothnumber
         case "grampanchayat":
           return filterData[0].grampanchayat
         case "address":
@@ -143,11 +142,13 @@ const afterfilterdata =formListData && formListData.filter((f)=>{
 
   const [block, setBlock] = useState(getDetails("block"));
   const [booth, setBooth] = useState(getDetails("booth"));
+  const [boothno, setBoothNo] = useState(getDetails("boothno"));
   const [grampanchayat, setGramPanchayat] = useState(getDetails("grampanchayat"));
   const [village, setVillage] = useState(getDetails("village"));
   const [toll, setToll] = useState(getDetails("toll"));
   const [badblock, setBadblock] = useState(false);
   const [badBooth, setBadBooth] = useState(false);
+  const [badBoothno, setBadBoothNo] = useState(false);
   const [badgrampanchayat, setBadgrampanchayat] = useState(false);
   const [badvillage, setBadvillage] = useState(false);
   const [badToll, setBadToll] = useState(false);
@@ -175,6 +176,8 @@ const afterfilterdata =formListData && formListData.filter((f)=>{
   const [longitude, setLongitude] = useState()
   const [latitude, setLatitude] = useState()
 
+  const [localLoginData ,setLocalLoginData] = useState()
+  const [timeData, setTimeData] = useState()
   const [code, setCode] = useState({ selections: [getDetails("code")] })
   const [vehicle, setVehicle] = useState({ selections: [getDetails("vehicle")]});
   const [nariSamman, setNariSamman] = useState({ selections: [getDetails("respect_for_women")] })
@@ -188,7 +191,9 @@ const afterfilterdata =formListData && formListData.filter((f)=>{
   Geolocation.getCurrentPosition(info => setLatitude(info.coords.latitude));
 
   
-
+ const latvalue = timeData && timeData.lat ? timeData.lat : ''
+ const longvalue = timeData && timeData.long ? timeData.long : ''
+ const startdateValue = timeData && timeData.startdate ? timeData.startdate : ''
 
 useEffect(()=>{
   const getfilterData =async()=>{
@@ -199,6 +204,14 @@ useEffect(()=>{
   getfilterData()
 },[])
 
+// useEffect(() => {
+//   localdateTimelat()
+// },[timeData])
+
+const localdateTimelat =  async() => {
+  const getDateTimefromLoacal = await getdateTimeLatLong()
+   setTimeData(getDateTimefromLoacal)
+}
 
   
     function handleBackButtonClick() {
@@ -220,13 +233,12 @@ useEffect(()=>{
     getData()
   },[])
 
-  const getData = async() =>{
+  const getData = async () => {
     const loginData = await getLoginCred();
-    // console.log('locallogindata>>',loginData);
-    
+    setLocalLoginData(loginData)
   }
 
-  
+  const currentdate = new Date(); 
 
   // console.log('filterData>>>>',filterData&&filterData[0].toggleCheckBoxIP);
 
@@ -241,6 +253,10 @@ useEffect(()=>{
       setBadBooth(true)
     } else {
       setBadBooth(false)
+    }if (boothno == '') {
+      setBadBoothNo(true)
+    } else {
+      setBadBoothNo(false)
     }
     if (grampanchayat == '') {
       setBadgrampanchayat(true)
@@ -417,10 +433,11 @@ useEffect(()=>{
     if (hasNetwork === true) {
       // console.log('saveApiData()');
       saveApiData()
+      
     } else {
-      console.log('saveDataIntoLocal()');
-      saveDataIntoLocal()
-      navigation.push('DataButtons')
+      // console.log('saveDataIntoLocal()');
+      // saveDataIntoLocal()
+      // navigation.push('DataButtons')
     }
   }
 
@@ -431,14 +448,11 @@ useEffect(()=>{
     console.log('newarrrayayayyayyayy',newArray);
    
     try {
-    const allfieldtostore = {
-      "user_id": filterData[0].userId,"block": block, 'booth': booth, 'grampanchayat': grampanchayat, 'village': village, 'toll': toll,
-      "name": name, "fatherName": fatherName, "cast": cast, "age": age, "education": education, "mobile": mobile,
-      "voterId": voterId, "address": address, "gender": gender, "vehicle": vehicle.selections, "group": group, "govtEmploye": govtEmploye,
-      "party": party, "code": code.selections,
-      "capturedPhoto": capturedPhoto, "nariSamman": nariSamman.selections, 
-      "kisanLoan": kisanLoan, "facebook": facebook, instagram: 'instagram', "twitter": twitter, "longitude": longitude, "latitude": latitude
-    }
+      const allfieldtostore = {"user_id":localUserId,"block_name_number":block,"votarcode":voterId,"boothName":booth,"boothNumber":boothno,"grampanchayat":grampanchayat,"village":village,"toll":toll,"name":name,
+      "fathername":fatherName,"jaati":cast,"age":age,"education":education,"mobile":mobile,"lat":latvalue,"long":longvalue,"address":address,"gender":gender,"vehicle":vehicle.selections.toString(),
+      "group":group,"government_employee":govtEmploye,"parti":party,"code":code.selections.toString(),"respect_for_women":nariSamman.selections.toString(),"image": capturedPhoto,
+      "farmer_loan_waiver":kisanLoan.selections.toString(),"facebook":facebook,"twitter":twitter,"instagram":instagram,"end_lat":latitude,"end_long":longitude,"startdate":startdateValue,"enddate":currentdate}
+  
     if(newArray == null || newArray == undefined ){
       dataarray.push(allfieldtostore)
      await setfieldDataintoLoacal(dataarray);
@@ -462,19 +476,16 @@ useEffect(()=>{
     //   navigation.navigate("");
   };
   const saveApiData = async () => {
-    const allfieldtostore = [{
-      user_id: userId, block: block, booth: booth, grampanchayat: grampanchayat, village: village, toll: toll,
-      name: name, fatherName: fatherName, cast: cast, age: age, education: education, mobile: mobile,
-      voterId: voterId, address: address, gender: gender, vehicle: vehicle.selections, group: group, govtEmploye: govtEmploye,
-      party: party, code: code.selections,
-      capturedPhoto: capturedPhoto, nariSamman: nariSamman.selections, kisanLoan: kisanLoan.selections,
-      facebook: facebook, instagram: instagram, twitter: twitter, longitude: longitude, latitude: latitude
-    }]
+    const allfieldtostore = {"user_id":localUserId,"block_name_number":block,"votarcode":voterId,"boothName":booth,"boothNumber":boothno,"grampanchayat":grampanchayat,"village":village,"toll":toll,"name":name,
+    "fathername":fatherName,"jaati":cast,"age":age,"education":education,"mobile":mobile,"lat":latvalue,"long":longvalue,"address":address,"gender":gender,"vehicle":vehicle.selections.toString(),
+    "group":group,"government_employee":govtEmploye,"parti":party,"code":code.selections.toString(),"respect_for_women":nariSamman.selections.toString(),"image": capturedPhoto,
+    "farmer_loan_waiver":kisanLoan.selections.toString(),"facebook":facebook,"twitter":twitter,"instagram":instagram,"end_lat":latitude,"end_long":longitude,"startdate":startdateValue,"enddate":currentdate}
+
     const datalist = allfieldtostore
     // console.log('datalist/////////////////////>>',datalist);
-    dispatch(FormDetailAction(datalist))
-    AllExistingDataList()
-    navigation.navigate('DataButtons')
+    dispatch(ServayDataEditAction(allfieldtostore))
+    // AllExistingDataList()
+    // navigation.navigate('DataButtons')
   };
 
   const AllExistingDataList = async () => {
@@ -575,7 +586,7 @@ useEffect(()=>{
 
                 <View style={{ marginTop: 20 }}>
 
-                  <Text style={{ top: 20, fontSize: 16, fontWeight: '500', color: 'black', textAlign: 'center' }}> ब्लॉक नाम & नंबर </Text>
+                  <Text style={{ top: 20, fontSize: 16, fontWeight: '500', color: 'black', textAlign: 'center' }}> ब्लॉक नाम </Text>
                   <TextInputCompo
                     onChangeText={(txt) =>
                       setBlock(txt)
@@ -584,13 +595,21 @@ useEffect(()=>{
                   {badblock === true && <Text style={{ color: "red", marginLeft: 30 }}>*Required field</Text>}
 
 
-                  <Text style={{ top: 20, fontSize: 16, fontWeight: '500', color: 'black', textAlign: 'center' }}> बूथ नाम & नंबर </Text>
-                  <TextInputCompo
-                    onChangeText={(txt) =>
-                      setBooth(txt)
-                    }
-                    value={booth} />
-                  {badBooth === true && <Text style={{ color: "red", marginLeft: 30 }}>*Required field</Text>}
+                  <Text style={{ top: 20, fontSize: 16, fontWeight: '500', color: 'black', textAlign: 'center' }}> बूथ नाम </Text>
+                <TextInputCompo
+                  onChangeText={(txt) =>
+                    setBooth(txt)
+                  }
+                  value={booth} />
+                {badBooth === true && <Text style={{ color: "red", marginLeft: 30 }}>*Required field</Text>}
+
+                <Text style={{ top: 20, fontSize: 16, fontWeight: '500', color: 'black', textAlign: 'center' }}> बूथ नंबर </Text>
+                <TextInputCompo
+                  onChangeText={(txt) =>
+                    setBoothNo(txt)
+                  }
+                  value={boothno} />
+                {badBoothno === true && <Text style={{ color: "red", marginLeft: 30 }}>*Required field</Text>}
 
 
                   <Text style={{ top: 20, fontSize: 16, fontWeight: '500', color: 'black', textAlign: 'center' }}> ग्राम पंचायत </Text>

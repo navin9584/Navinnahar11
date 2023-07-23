@@ -3,13 +3,14 @@ import { View, Text, ScrollView, BackHandler, TouchableOpacity, StyleSheet, Link
 import CommonButton from '../ReusableComponent/ButtonCompo';
 import TextInputCompo from '../ReusableComponent/TextInputCompo';
 import CheckBox from '@react-native-community/checkbox';
-import { setfieldDataintoLoacal, getFilterDatafromdrodown } from '../localStorage';
+import { setfieldDataintoLoacal, getFilterDatafromdrodown ,setdateTimeLatLong,getdateTimeLatLong,getLoginCred} from '../localStorage';
 import { Camera, useCameraDevices } from 'react-native-vision-camera';
 import Loader from '../ReusableComponent/Loader';
 import { UserFormDetailAction } from '../../redux/userFormApi';
 import { checkNetworkConnectivity } from '../localStorage';
 import { useDispatch, useSelector } from 'react-redux';
 import Geolocation from '@react-native-community/geolocation';
+import { Picker } from '@react-native-picker/picker'
 
 const FormDetails = ({ navigation }) => {
 
@@ -62,11 +63,14 @@ const FormDetails = ({ navigation }) => {
 
   const [block, setBlock] = useState('');
   const [booth, setBooth] = useState('');
+  const [boothno, setBoothNo] = useState('');
+  
   const [grampanchayat, setGramPanchayat] = useState('');
   const [village, setVillage] = useState('');
   const [toll, setToll] = useState('');
   const [badblock, setBadblock] = useState(false);
   const [badBooth, setBadBooth] = useState(false);
+  const [badBoothno, setBadBoothNo] = useState(false);
   const [badgrampanchayat, setBadgrampanchayat] = useState(false);
   const [badvillage, setBadvillage] = useState(false);
   const [badToll, setBadToll] = useState(false);
@@ -97,9 +101,11 @@ const FormDetails = ({ navigation }) => {
   const [nariSamman, setNariSamman] = useState({ selections: [] })
   const [kisanLoan, setKisanLoan] = useState({ selections: [] })
   const options = ['टू व्हीलर', 'फोर व्हीलर', 'कोई वाहन नहीं है']
-  const codeOption = ['BC', 'ER', 'IP', 'FP', 'PP', 'YC', 'SC']
+  const codeOption = ['BC (बूथ कमेटी)','PP (पेज प्रभारी)', 'IP (प्रभावशाली व्यक्ति)','FH (परिवार का मुखिया)','SC (सीनियर कांग्रेस)','YC (यूथ कांग्रेस)', 'FP (फलिया प्रभारी)', 'ER (चुनाव प्रभारी)','वरिष्ठ','युवा']
   const narisammanOption = ['Yes', 'No']
   const kisanLoanOption = ['नही', 'कांग्रेस', 'बीजेपी']
+  const [timeData, setTimeData] = useState()
+  const [localLoginData ,setLocalLoginData] = useState()
 
 
 
@@ -107,9 +113,11 @@ const FormDetails = ({ navigation }) => {
   const formData = data.formData.data
   const loginData = data.loginData.data && data.loginData.data.userdata
   const userId = loginData && loginData.userId
+  const localUserId =localLoginData && localLoginData.userId
+  const localServayId =localLoginData && localLoginData.servayid
 
-  // console.log('formData>>>>', formData);
 
+ 
 
 
   const onPressNext1 = () => {
@@ -122,6 +130,10 @@ const FormDetails = ({ navigation }) => {
       setBadBooth(true)
     } else {
       setBadBooth(false)
+    }if (boothno == '') {
+      setBadBoothNo(true)
+    } else {
+      setBadBoothNo(false)
     }
     if (grampanchayat == '') {
       setBadgrampanchayat(true)
@@ -142,6 +154,7 @@ const FormDetails = ({ navigation }) => {
       setButtonShow3(false)
       setButtonShow4(false)
       setButtonShow5(false)
+      // dateTimLatLongFun()
 
     }
   }
@@ -291,21 +304,45 @@ const FormDetails = ({ navigation }) => {
     checkPermission()
   }, [checkPermission, devices])
 
+  const dateTimeInfo = {"startdate": new Date(),"lat":latitude,"long":longitude}
+  const dateTimLatLongFun = async()=>{
+    await setdateTimeLatLong(dateTimeInfo)
+}
 
+// useEffect(() => {
+//   localdateTimelat()
+// },[timeData])
 
+useEffect(() => {
+  getData()
+}, [])
+
+const getData = async () => {
+  const loginData = await getLoginCred();
+  setLocalLoginData(loginData)
+}
+
+const localdateTimelat =  async() => {
+  const getDateTimefromLoacal = await getdateTimeLatLong()
+   setTimeData(getDateTimefromLoacal)
+}
+const latvalue = timeData && timeData.lat ? timeData.lat : ''
+const longvalue = timeData && timeData.long ? timeData.long : ''
+const startdateValue = timeData && timeData.startdate ? timeData.startdate : ''
+const enddateValue = timeData && timeData.enddate ? timeData.enddate : ''
+const currentdate = new Date(); 
+const datetime = currentdate.getDate() + "/"
+              + (currentdate.getMonth()+1)  + "/" 
+              + currentdate.getFullYear() + " @ "  
+              + currentdate.getHours() + ":"  
+              + currentdate.getMinutes() + ":" 
+              + currentdate.getSeconds();
 
   const onSubmit = async () => {
-    let hasNetwork = await checkNetworkConnectivity();
-    console.log('hasNetwork??????', hasNetwork);
-    if (hasNetwork === true) {
       saveApiData()
-      navigation.navigate('DataButtons')
+        // navigation.navigate('DataButtons')
       // console.log('saveDataIntoLocal()');
-    }else{
-      // saveDataIntoLocal()
-      navigation.navigate('DataButtons')
-      console.log('saveDataIntoLocal()');
-    }
+   
   }
 
 
@@ -325,14 +362,11 @@ const FormDetails = ({ navigation }) => {
   Geolocation.getCurrentPosition(info => setLatitude(info.coords.latitude));
 
   const saveDataIntoLocal = async () => {
-    const allfieldtostore = [{
-      "block": block, 'booth': booth, 'grampanchayat': grampanchayat, 'village': village, 'toll': toll,
-      "name": name, "fatherName": fatherName, "cast": cast, "age": age, "education": education, "mobile": mobile,
-      "voterId": voterId, "address": address, "gender": gender, "vehicle": vehicle.selections, "group": group, "govtEmploye": govtEmploye,
-      "party": party, "code": code.selections,
-      "capturedPhoto": capturedPhoto, "nariSamman": nariSamman.selections, "kisanKarjMafi": kisanKarjMafi,
-      "kisanKarjMafiCongress": kisanKarjMafiCongress, "kisanKarjMafiBjp": kisanKarjMafiBjp, "facebook": facebook, instagram: 'instagram', "twitter": twitter, "longitude": longitude, "latitude": latitude
-    }]
+    const allfieldtostore = {user_id:localUserId,block_name_number:block,votarcode:voterId,boothName:booth,boothNumber:boothno,grampanchayat:grampanchayat,village:village,toll:toll,name:name,
+      fathername:fatherName,jaati:cast,age:age,education:education,mobile:mobile,lat:latvalue,long:longvalue,address:address,gender:gender,vehicle:vehicle.selections.toString(),
+      group:group,government_employee:govtEmploye,parti:party,code:code.selections.toString(),servayid:'own',respect_for_women:nariSamman.selections.toString(),image: capturedPhoto,
+      farmer_loan_waiver:kisanLoan.selections.toString(),facebook:facebook,twitter:twitter,instagram:instagram,end_lat:latitude,end_long:longitude,startdate:startdateValue,enddate:currentdate}
+  
     try {
       const newItems = allfieldtostore
       dataList.push(...newItems)
@@ -346,19 +380,42 @@ const FormDetails = ({ navigation }) => {
     //   navigation.navigate("");
   };
 
-  const saveApiData = async () => {
-    const allfieldtostore = [{
-      user_id: userId, block: block, booth: booth, grampanchayat: grampanchayat, village: village, toll: toll,
-      name: name, fatherName: fatherName, cast: cast, age: age, education: education, mobile: mobile,
-      voterId: voterId, address: address, gender: gender, vehicle: vehicle.selections, group: group, govtEmploye: govtEmploye,
-      party: party, code: code.selections,
-      capturedPhoto: capturedPhoto, nariSamman: nariSamman.selections, kisanLoan: kisanLoan.selections,
-      facebook: facebook, instagram: instagram, twitter: twitter, longitude: longitude, latitude: latitude
-    }]
+  // console.log('datetime>>',currentdate.toString());
+  // console.log('currentdate',typeof(currentdate.toString()));
+
+  const saveApiData = async() => {
+    const allfieldtostore = [{user_id:localUserId,block_name_number:block,votarcode:voterId,boothName:booth,boothNumber:boothno,grampanchayat:grampanchayat,village:village,toll:toll,name:name,
+      fathername:fatherName,jaati:cast,age:age,education:education,mobile:mobile,lat:latitude,long:longitude,address:address,gender:gender,vehicle:vehicle.selections.toString(),
+      group:group,government_employee:govtEmploye,parti:party,code:code.selections.toString(),servayid:"own",respect_for_women:nariSamman.selections.toString(),image: capturedPhoto,
+      farmer_loan_waiver:kisanLoan.selections.toString(),facebook:facebook,twitter:twitter,instagram:instagram,end_lat:latitude,end_long:longitude,startdate:currentdate.toString(),enddate:currentdate.toString()}]
+  
     const datalist = allfieldtostore && allfieldtostore[0]
     // console.log('datalist>>',datalist);
-    dispatch(UserFormDetailAction(datalist))
+    let hasNetwork = await checkNetworkConnectivity();
+     if (hasNetwork === true) {
+      const data = await dispatch(UserFormDetailAction(allfieldtostore))
+      console.log('data??????????',data);
+           if(data.payload.error === false ){
+            navigation.navigate('DataButtons')
+           }else if(data.payload.error === true ){
+            Alert.alert('सर्वर की समस्या आ रही है !')
+           }    
+   }else{
+    alert('Internet not available')
+   }
+   
   };
+
+  // if (hasNetwork === true) {
+  //   const data =  await dispatch(UserFormDetailAction(allfieldtostore))
+  //          if(data.payload.error === false ){
+   
+  //          }else if(data.payload.error === true && getAllLocalData != null){
+  //              Alert.alert('सर्वर की समस्या आ रही है !')
+  //          }
+           
+           
+  //  }
 
   // console.log('capturephoto', capturedPhoto);
 
@@ -442,7 +499,7 @@ const FormDetails = ({ navigation }) => {
 
               <View style={{ marginTop: 20 }}>
 
-                <Text style={{ top: 20, fontSize: 16, fontWeight: '500', color: 'black', textAlign: 'center' }}> ब्लॉक नाम & नंबर </Text>
+                <Text style={{ top: 20, fontSize: 16, fontWeight: '500', color: 'black', textAlign: 'center' }}> ब्लॉक नाम </Text>
                 <TextInputCompo
                   onChangeText={(txt) =>
                     setBlock(txt)
@@ -451,13 +508,23 @@ const FormDetails = ({ navigation }) => {
                 {badblock === true && <Text style={{ color: "red", marginLeft: 30 }}>*Required field</Text>}
 
 
-                <Text style={{ top: 20, fontSize: 16, fontWeight: '500', color: 'black', textAlign: 'center' }}> बूथ नाम & नंबर </Text>
+                <Text style={{ top: 20, fontSize: 16, fontWeight: '500', color: 'black', textAlign: 'center' }}> बूथ नाम </Text>
                 <TextInputCompo
                   onChangeText={(txt) =>
                     setBooth(txt)
                   }
                   value={booth} />
                 {badBooth === true && <Text style={{ color: "red", marginLeft: 30 }}>*Required field</Text>}
+
+                <Text style={{ top: 20, fontSize: 16, fontWeight: '500', color: 'black', textAlign: 'center' }}> बूथ नंबर </Text>
+                <TextInputCompo
+                  onChangeText={(txt) =>
+                    setBoothNo(txt)
+                  }
+                  value={boothno} />
+                {badBoothno === true && <Text style={{ color: "red", marginLeft: 30 }}>*Required field</Text>}
+
+
 
 
                 <Text style={{ top: 20, fontSize: 16, fontWeight: '500', color: 'black', textAlign: 'center' }}> ग्राम पंचायत </Text>
@@ -527,11 +594,33 @@ const FormDetails = ({ navigation }) => {
               {badFather === true && <Text style={{ color: "red", marginLeft: 30 }}>*Required field</Text>}
 
               <Text style={{ top: 20, fontSize: 16, fontWeight: '500', color: 'black', marginLeft: 30 }}> जाति </Text>
-              <TextInputCompo
-                onChangeText={(txt) =>
-                  setCast(txt)
-                }
-                value={cast} />
+              <View style={[styles.dropdown]}>
+                <Picker
+                  //  style={[styles.dropdown]}
+                  itemStyle={{ color: 'red' }}
+                  placeholderStyle={styles.placeholderStyle}
+                  selectedTextStyle={styles.selectedTextStyle}
+                  selectedValue={cast}
+                  onValueChange={(itemValue, itemIndex) =>
+                    setCast(itemValue)
+                  }>
+                  <Picker.Item label="लिस्ट से चुनै" value="" />
+                  <Picker.Item label="एस टी (भील)" value="एस टी (भील)" />
+                  <Picker.Item label="एस टी (भीलाला)" value="एस टी (भीलाला)" />
+                  <Picker.Item label="मुस्लिम" value="मुस्लिम" />
+                  <Picker.Item label="ब्राह्मण" value="ब्राह्मण" />
+                  <Picker.Item label="सिरवी" value="सिरवी" />
+                  <Picker.Item label="माहेश्वरी" value="माहेश्वरी" />
+                  <Picker.Item label="प्रजापति" value="प्रजापति" />
+                  <Picker.Item label="राजपूत" value="राजपूत" />
+                  <Picker.Item label="लोहार" value="लोहार" />
+                  <Picker.Item label="सिख" value="सिख" />
+                  <Picker.Item label="राठौर" value="राठौर" />
+                  <Picker.Item label="जैन" value="जैन" />
+                  <Picker.Item label="बोहरा" value="बोहरा" />
+                  <Picker.Item label="अन्य" value="अन्य" />
+                </Picker>
+              </View>
               {badcast === true && <Text style={{ color: "red", marginLeft: 30 }}>*Required field</Text>}
 
               <Text style={{ top: 20, fontSize: 16, fontWeight: '500', color: 'black', marginLeft: 30 }}> आयु </Text>
@@ -543,11 +632,26 @@ const FormDetails = ({ navigation }) => {
               {badage === true && <Text style={{ color: "red", marginLeft: 30 }}>*Required field</Text>}
 
               <Text style={{ top: 20, fontSize: 16, fontWeight: '500', color: 'black', marginLeft: 30 }}> शिक्षा </Text>
-              <TextInputCompo
-                onChangeText={(txt) =>
-                  setEducation(txt)
-                }
-                value={education} />
+              <View style={[styles.dropdown]}>
+                <Picker
+                  //  style={[styles.dropdown]}
+                  itemStyle={{ color: 'red' }}
+                  placeholderStyle={styles.placeholderStyle}
+                  selectedTextStyle={styles.selectedTextStyle}
+                  selectedValue={education}
+                  onValueChange={(itemValue, itemIndex) =>
+                    setEducation(itemValue)
+                  }>
+                  <Picker.Item label="लिस्ट से चुनै" value="" />
+                  <Picker.Item label="अशिक्षित" value="अशिक्षित" />
+                  <Picker.Item label="प्राइमरी स्कूल (5th)" value="प्राइमरी स्कूल (5th)" />
+                  <Picker.Item label="मिडिल स्कूल (8th)" value="मिडिल स्कूल (8th)" />
+                  <Picker.Item label="हाई स्कूल (10th)" value="हाई स्कूल (10th)" />
+                  <Picker.Item label="हायर सेकेंडरी स्कूल (12th)" value="हायर सेकेंडरी स्कूल (12th)" />
+                  <Picker.Item label="ग्रेजुएट" value="ग्रेजुएट" />
+                  <Picker.Item label="पोस्ट ग्रेजुएट" value="पोस्ट ग्रेजुएट" />
+                </Picker>
+              </View>
               {badeducation === true && <Text style={{ color: "red", marginLeft: 30 }}>*Required field</Text>}
 
               <Text style={{ top: 20, fontSize: 16, fontWeight: '500', color: 'black', marginLeft: 30 }}> मोबाइल नंबर </Text>
@@ -599,11 +703,21 @@ const FormDetails = ({ navigation }) => {
 
 
               <Text style={{ top: 20, fontSize: 16, fontWeight: '500', color: 'black', marginLeft: 30 }}> लिंग </Text>
-              <TextInputCompo
-                onChangeText={(txt) =>
-                  setGender(txt)
-                }
-                value={gender} />
+              <View style={[styles.dropdown]}>
+                <Picker
+                  //  style={[styles.dropdown]}
+                  placeholderStyle={styles.placeholderStyle}
+                  selectedTextStyle={styles.selectedTextStyle}
+                  selectedValue={gender}
+                  onValueChange={(itemValue, itemIndex) =>
+                    setGender(itemValue)
+                  }>
+                  <Picker.Item label="लिस्ट से चुनै" value="" />
+                  <Picker.Item label="पुरुष" value="पुरुष" />
+                  <Picker.Item label="महिला" value="महिला" />
+                  <Picker.Item label="अन्य" value="अन्य" />
+                </Picker>
+              </View>
               {badgender === true && <Text style={{ color: "red", marginLeft: 30 }}>*Required field</Text>}
 
 
@@ -616,10 +730,10 @@ const FormDetails = ({ navigation }) => {
               {badgroup === true && <Text style={{ color: "red", marginLeft: 30 }}>*Required field</Text>}
               <Text style={{ marginTop: 20, fontSize: 16, fontWeight: '500', color: 'black', marginLeft: 30 }}> वाहन </Text>
 
-              {options.map((item) => {
+              {options.map((item,index) => {
                 return (
                   <>
-                    <View>
+                    <View index={index}>
 
                       <View style={{ flexDirection: 'row', alignItems: "center", marginLeft: 40 }}>
                         <View style={{}}>
@@ -690,10 +804,10 @@ const FormDetails = ({ navigation }) => {
               </View>
               <Text style={{ marginTop: 20, fontSize: 16, fontWeight: '500', color: 'black', marginLeft: 30 }}>कोड</Text>
 
-              {codeOption.map((item) => {
+              {codeOption.map((item,index) => {
                 return (
                   <>
-                    <View style={{ flexDirection: 'row', marginHorizontal: 20, justifyContent: 'space-evenly', alignItems: 'center', marginTop: 10 }}>
+                    <View index={index} style={{ flexDirection: 'row', marginTop: 10,marginLeft:50 }}>
                       <CheckBox
 
                         disabled={false}
@@ -705,9 +819,9 @@ const FormDetails = ({ navigation }) => {
 
                       />
 
-                      <TouchableOpacity >
-                        <Text style={{ fontSize: 16, fontWeight: '500', color: 'black', }}>{item}</Text>
-                      </TouchableOpacity>
+                      <View >
+                        <Text style={{ fontSize: 16, fontWeight: '500', color: 'black',marginLeft:10,marginTop:5 }}>{item}</Text>
+                      </View>
                     </View>
                   </>
 
@@ -751,10 +865,10 @@ const FormDetails = ({ navigation }) => {
               <Text style={{ marginTop: 20, fontSize: 16, fontWeight: '500', color: 'black', marginLeft: 30 }}>नारी सम्मान</Text>
               {/* {badNariSamman === true && <Text style={{ color: "red", marginLeft: 30 }}>*Required field</Text>} */}
               <View style={{ flexDirection: 'row' }}>
-                {narisammanOption.map((item) => {
+                {narisammanOption.map((item,index) => {
                   return (
                     <>
-                      <View style={{ flexDirection: 'row', marginHorizontal: 20, alignItems: 'center', marginTop: 10 }}>
+                      <View index={index} style={{ flexDirection: 'row', marginHorizontal: 20, alignItems: 'center', marginTop: 10 }}>
                         <CheckBox
                           disabled={false}
                           boxType={'circle'}
@@ -775,10 +889,10 @@ const FormDetails = ({ navigation }) => {
               <Text style={{ marginTop: 20, fontSize: 16, fontWeight: '500', color: 'black', marginLeft: 30 }}>किसान कर्ज माफी</Text>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 }}>
 
-                {kisanLoanOption.map((item) => {
+                {kisanLoanOption.map((item, index) => {
                   return (
                     <>
-                      <View style={{ flexDirection: 'row', marginHorizontal: 20, alignItems: 'center', marginTop: 10 }}>
+                      <View index={index} style={{ flexDirection: 'row', marginHorizontal: 20, alignItems: 'center', marginTop: 10 }}>
                         <CheckBox
                           disabled={false}
                           boxType={'circle'}
@@ -916,6 +1030,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 22,
+  },
+  dropdown: {
+    height: 50,
+    width: '80%',
+    borderColor: 'gray',
+    borderWidth: 0.5,
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    alignSelf: 'center',
+    marginTop: 30
   },
 });
 
