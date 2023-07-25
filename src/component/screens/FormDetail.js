@@ -9,8 +9,33 @@ import Loader from '../ReusableComponent/Loader';
 import { UserFormDetailAction } from '../../redux/userFormApi';
 import { checkNetworkConnectivity } from '../localStorage';
 import { useDispatch, useSelector } from 'react-redux';
-import Geolocation from '@react-native-community/geolocation';
+import Geolocation from 'react-native-geolocation-service';
 import { Picker } from '@react-native-picker/picker'
+
+const requestLocationPermission = async () => {
+  try {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      {
+        title: 'Geolocation Permission',
+        message: 'Can we access your location?',
+        buttonNeutral: 'Ask Me Later',
+        buttonNegative: 'Cancel',
+        buttonPositive: 'OK',
+      },
+    );
+    console.log('granted', granted);
+    if (granted === 'granted') {
+      console.log('You can use Geolocation');
+      return true;
+    } else {
+      console.log('You cannot use Geolocation');
+      return false;
+    }
+  } catch (err) {
+    return false;
+  }
+};
 
 const FormDetails = ({ navigation }) => {
 
@@ -18,7 +43,7 @@ const FormDetails = ({ navigation }) => {
   const cameraRef = useRef(null);
   const [longitude, setLongitude] = useState()
   const [latitude, setLatitude] = useState()
-
+  const [location, setLocation] = useState(false);
   const [vehicleValidate, setVehicleValidate] = useState(false)
   const [badvehicleValidate, setBadvehicleValidate] = useState(false)
 
@@ -309,9 +334,36 @@ const FormDetails = ({ navigation }) => {
     await setdateTimeLatLong(dateTimeInfo)
 }
 
-// useEffect(() => {
-//   localdateTimelat()
-// },[timeData])
+
+useEffect(()=>{
+  getLocation()
+},[])
+
+const getLocation = () => {
+  const result =  requestLocationPermission();
+  console.log('result>>',result);
+  result.then(res => {
+    console.log('res is:', res);
+    if (res) {
+      Geolocation.getCurrentPosition(
+        position => {
+          console.log('position>>>>>',position);
+          setLocation(position);
+        },
+        error => {
+          // See error code charts below.
+          console.log(error.code, error.message);
+          setLocation(false);
+        },
+        {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+      );
+    }
+  });
+  
+};
+useEffect(() => {
+  localdateTimelat()
+},[])
 
 useEffect(() => {
   getData()
@@ -326,10 +378,6 @@ const localdateTimelat =  async() => {
   const getDateTimefromLoacal = await getdateTimeLatLong()
    setTimeData(getDateTimefromLoacal)
 }
-const latvalue = timeData && timeData.lat ? timeData.lat : ''
-const longvalue = timeData && timeData.long ? timeData.long : ''
-const startdateValue = timeData && timeData.startdate ? timeData.startdate : ''
-const enddateValue = timeData && timeData.enddate ? timeData.enddate : ''
 const currentdate = new Date(); 
 const datetime = currentdate.getDate() + "/"
               + (currentdate.getMonth()+1)  + "/" 
@@ -338,11 +386,20 @@ const datetime = currentdate.getDate() + "/"
               + currentdate.getMinutes() + ":" 
               + currentdate.getSeconds();
 
+              // console.log('datetime??????????',currentdate);
+
+      const startDate = new Date(timeData && timeData.timestamp)
+
+const startdateValue = startDate ? startDate : ''
+
+const locallatitude = timeData && timeData.coords ? timeData.coords.latitude : ''
+const locallongitude = timeData && timeData.coords  ? timeData.coords.longitude : ''
+const latvalue = location && location.coords ? location.coords.latitude : ''
+const longvalue = location && location.coords ? location.coords.longitude : ''
+console.log('latvalue>>>>>',latvalue, longvalue);
+
   const onSubmit = async () => {
       saveApiData()
-        // navigation.navigate('DataButtons')
-      // console.log('saveDataIntoLocal()');
-   
   }
 
 
@@ -358,34 +415,12 @@ const datetime = currentdate.getDate() + "/"
     };
   }, []);
 
-  Geolocation.getCurrentPosition(info => setLongitude(info.coords.longitude));
-  Geolocation.getCurrentPosition(info => setLatitude(info.coords.latitude));
 
-  const saveDataIntoLocal = async () => {
-    const allfieldtostore = {user_id:localUserId,block_name_number:block,votarcode:voterId,boothName:booth,boothNumber:boothno,grampanchayat:grampanchayat,village:village,toll:toll,name:name,
-      fathername:fatherName,jaati:cast,age:age,education:education,mobile:mobile,lat:latvalue,long:longvalue,address:address,gender:gender,vehicle:vehicle.selections.toString(),
-      group:group,government_employee:govtEmploye,parti:party,code:code.selections.toString(),servayid:'own',respect_for_women:nariSamman.selections.toString(),image: capturedPhoto,
-      farmer_loan_waiver:kisanLoan.selections.toString(),facebook:facebook,twitter:twitter,instagram:instagram,end_lat:latitude,end_long:longitude,startdate:startdateValue,enddate:currentdate}
-  
-    try {
-      const newItems = allfieldtostore
-      dataList.push(...newItems)
-      const updatedList = [...dataList];
-      await setfieldDataintoLoacal(dataList);
-      setDataList(updatedList);
-      console.log('Data saved successfully.');
-    } catch (error) {
-      console.log('Error saving data:', error);
-    }
-    //   navigation.navigate("");
-  };
 
-  // console.log('datetime>>',currentdate.toString());
-  // console.log('currentdate',typeof(currentdate.toString()));
 
   const saveApiData = async() => {
     const allfieldtostore = [{user_id:localUserId,block_name_number:block,votarcode:voterId,boothName:booth,boothNumber:boothno,grampanchayat:grampanchayat,village:village,toll:toll,name:name,
-      fathername:fatherName,jaati:cast,age:age,education:education,mobile:mobile,lat:latitude,long:longitude,address:address,gender:gender,vehicle:vehicle.selections.toString(),
+      fathername:fatherName,jaati:cast,age:age,education:education,mobile:mobile,lat:locallatitude,long:locallongitude,address:address,gender:gender,vehicle:vehicle.selections.toString(),
       group:group,government_employee:govtEmploye,parti:party,code:code.selections.toString(),servayid:"own",respect_for_women:nariSamman.selections.toString(),image: capturedPhoto,
       farmer_loan_waiver:kisanLoan.selections.toString(),facebook:facebook,twitter:twitter,instagram:instagram,end_lat:latitude,end_long:longitude,startdate:currentdate.toString(),enddate:currentdate.toString()}]
   
@@ -406,18 +441,7 @@ const datetime = currentdate.getDate() + "/"
    
   };
 
-  // if (hasNetwork === true) {
-  //   const data =  await dispatch(UserFormDetailAction(allfieldtostore))
-  //          if(data.payload.error === false ){
-   
-  //          }else if(data.payload.error === true && getAllLocalData != null){
-  //              Alert.alert('सर्वर की समस्या आ रही है !')
-  //          }
-           
-           
-  //  }
 
-  // console.log('capturephoto', capturedPhoto);
 
   if (device == null) return <Loader />
 
@@ -488,7 +512,6 @@ const datetime = currentdate.getDate() + "/"
   }
 
 
-  // console.log('state>>>', kisanLoan.selections);
   return (
     <View style={{ flex: 1 }}>
       <ScrollView showsVerticalScrollIndicator={false} >
@@ -863,7 +886,6 @@ const datetime = currentdate.getDate() + "/"
               ><Text style={{ color: '#8ed1fc', fontWeight: '500', fontSize: 18 }}>Back</Text></TouchableOpacity>
 
               <Text style={{ marginTop: 20, fontSize: 16, fontWeight: '500', color: 'black', marginLeft: 30 }}>नारी सम्मान</Text>
-              {/* {badNariSamman === true && <Text style={{ color: "red", marginLeft: 30 }}>*Required field</Text>} */}
               <View style={{ flexDirection: 'row' }}>
                 {narisammanOption.map((item,index) => {
                   return (
@@ -1007,10 +1029,6 @@ const datetime = currentdate.getDate() + "/"
               </View>
 
             </View>
-
-
-
-
           }</View>
 
 

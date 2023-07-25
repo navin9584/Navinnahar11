@@ -77,7 +77,7 @@ const DataButtons = ({navigation}) => {
                       await clearDatafromLoacal()
                      const getlocal = await getfieldDatafromLoacal()
                       setAllAsyncData(getlocal)
-                    Alert.alert('डेटा सेव हो गया!')
+                    Alert.alert('डाटा सेव हो गया!')
                 }else if(data.payload.error === true && getAllLocalData != null){
                     Alert.alert('सर्वर की समस्या आ रही है !')
                 }

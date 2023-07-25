@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, Text, ScrollView, BackHandler, TouchableOpacity, StyleSheet, Linking, Image, Modal, Pressable, TextInput } from 'react-native'
+import { View, Text, ScrollView, BackHandler, TouchableOpacity, StyleSheet, Linking, Image, Modal, Pressable, TextInput,PermissionsAndroid } from 'react-native'
 import CommonButton from '../ReusableComponent/ButtonCompo';
 import TextInputCompo from '../ReusableComponent/TextInputCompo';
 import CheckBox from '@react-native-community/checkbox';
@@ -9,36 +9,47 @@ import Loader from '../ReusableComponent/Loader';
 import { FormDetailAction } from '../../redux/FormDetailApi';
 import { checkNetworkConnectivity } from '../localStorage';
 import { useDispatch, useSelector } from 'react-redux';
-import Geolocation from '@react-native-community/geolocation';
+import Geolocation from '@react-native-community/geolocation"';
 import { FormListApi } from '../../redux/FormListApi';
 import { Picker } from '@react-native-picker/picker'
 // import CheckBox from 'react-native-check-box'
+
+const requestLocationPermission = async () => {
+  try {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      {
+        title: 'Geolocation Permission',
+        message: 'Can we access your location?',
+        buttonNeutral: 'Ask Me Later',
+        buttonNegative: 'Cancel',
+        buttonPositive: 'OK',
+      },
+    );
+    console.log('granted', granted);
+    if (granted === 'granted') {
+      console.log('You can use Geolocation');
+      return true;
+    } else {
+      console.log('You cannot use Geolocation');
+      return false;
+    }
+  } catch (err) {
+    return false;
+  }
+};
 
 const FreshData = ({ navigation }) => {
 
   const dispatch = useDispatch();
   const cameraRef = useRef(null);
+  const [location, setLocation] = useState(false);
   const [longitude, setLongitude] = useState()
   const [latitude, setLatitude] = useState()
   const [dateTime, setDateTime] = useState()
 
   const [vehicleValidate, setVehicleValidate] = useState(false)
   const [badvehicleValidate, setBadvehicleValidate] = useState(false)
-
-
-
-  const [nariSammanYes, setNariSammanYes] = useState(false)
-  const [badNariSamman, setBadNariSamman] = useState(false);
-
-  const [narisammanValidate, setNariSammanValidate] = useState(false)
-  const [badnarisammanValidate, setBadNariSammanValidate] = useState(false)
-
-  const [kisanKarjMafi, setKisanKarjMafi] = useState(false)
-  const [kisanKarjMafiCongress, setKisanKarjMafiCongress] = useState(false)
-  const [kisanKarjMafiBjp, setKisanKarjMafiBjp] = useState(false)
-  const [kisanKarjMafiValidate, setKisanKarjMafiValidate] = useState(false)
-
-
   const [name, setName] = useState('');
   const [fatherName, setFatherName] = useState('');
   const [age, setAge] = useState('');
@@ -306,6 +317,7 @@ const FreshData = ({ navigation }) => {
   const [camerView, setcameraView] = useState()
   const [timeData, setTimeData] = useState()
 
+
   const devices = useCameraDevices("wide-angle-camera")
   const device = devices.back
   const deviceFront = device
@@ -328,23 +340,48 @@ const FreshData = ({ navigation }) => {
     checkPermission()
   }, [checkPermission, devices])
 
-  // React.useEffect(() => {
-  //   const unsubscribe = navigation.addListener('focus', () => {
-  //     localdateTimelat()
-      
-  //   });
 
-  //   // return unsubscribe;
-  // }, [navigation]);
 
+
+  useEffect(()=>{
+    getLocation()
+  },[])
+
+  const getLocation = () => {
+    const result =  requestLocationPermission();
+    console.log('result>>',result);
+    result.then(res => {
+      console.log('res is:', res);
+      if (res) {
+        Geolocation.getCurrentPosition(
+          position => {
+            console.log('position>>>>>',position);
+            setLocation(position);
+          },
+          error => {
+            // See error code charts below.
+            console.log(error.code, error.message);
+            setLocation(false);
+          },
+          {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+        );
+      }
+    });
+    
+  };
+  console.log("location>>>>>>>>>>>>>>",location);
   useEffect(() => {
     getfieldDatafromLoacal()
     getData()
+    // getCurrentPosition()
   }, [countData])
+
+
+
 
   useEffect(() => {
     localdateTimelat()
-},[timeData])
+},[])
 
 
 // console.log('timeData>>>>',timeData);
@@ -355,11 +392,10 @@ const localdateTimelat =  async() => {
 
 
 
+
   const getData = async () => {
     const loginData = await getLoginCred();
     setLocalLoginData(loginData)
-    
-
   }
 
 
@@ -369,81 +405,51 @@ const localdateTimelat =  async() => {
   }
 
 
-
-  Geolocation.getCurrentPosition(info => setLongitude(info.coords.longitude));
-  Geolocation.getCurrentPosition(info => setLatitude(info.coords.latitude));
-  // Geolocation.getCurrentPosition(info => setDateTime(new Date(info.timestamp * 1000)));
   const currentdate = new Date(); 
-  const datetime = currentdate.getDate() + "/"
-                + (currentdate.getMonth()+1)  + "/" 
-                + currentdate.getFullYear() + " @ "  
-                + currentdate.getHours() + ":"  
-                + currentdate.getMinutes() + ":" 
-                + currentdate.getSeconds();
 
-                // console.log('datetime??????????',currentdate);
+  const startDate = new Date(timeData&&timeData.timestamp)
+ const startdateValue = startDate ? startDate : ''
+ const locallatitude = timeData && timeData.coords ?  timeData.coords.latitude : ''
+ const locallongitude = timeData && timeData.coords ? timeData.coords.longitude : ''
+const latvalue = location && location.coords? location.coords.latitude : ''
+const longvalue = location && location.coords? location.coords.longitude : ''
+console.log('latvalue>>>>>',latvalue, longvalue);
 
-const dateTimeInfo = {"startdate": currentdate.toString(),"lat":latitude,"long":longitude}
+
+
+
+console.log('startDate',startdateValue);
+const dateTimeInfo = {"startdate": currentdate.toString(),"lat":latvalue,"long":longvalue}
   const dateTimLatLongFun = async()=>{
        await setdateTimeLatLong(dateTimeInfo)
   }
 
 
- const latvalue = timeData && timeData.lat ? timeData.lat : ''
- const longvalue = timeData && timeData.long ? timeData.long : ''
- const startdateValue = timeData && timeData.startdate ? timeData.startdate : ''
- const enddateValue = timeData && timeData.enddate ? timeData.enddate : ''
-// console.log('startdateValue//',dateTimeInfo);
   const saveDataIntoLocal = async () => {
     let dataarray = []
     let newArray = await getfieldDatafromLoacal()
    
     
       const allfieldtostore = {"user_id":localUserId,"block_name_number":block,"votarcode":voterId,"boothName":booth,"boothNumber":boothno,"grampanchayat":grampanchayat,"village":village,"toll":toll,"name":name,
-        "fathername":fatherName,"jaati":cast,"age":age,"education":education,"mobile":mobile,"lat":latvalue,"long":longvalue,"address":address,"gender":gender,"vehicle":vehicle.selections.toString(),
+        "fathername":fatherName,"jaati":cast,"age":age,"education":education,"mobile":mobile,"lat":locallatitude,"long":locallongitude,"address":address,"gender":gender,"vehicle":vehicle.selections.toString(),
         "group":group,"government_employee":govtEmploye,"parti":party,"code":code.selections.toString(),"servayid":"0","respect_for_women":nariSamman.selections.toString(),"image": capturedPhoto,
-        "farmer_loan_waiver":kisanLoan.selections.toString(),"facebook":facebook,"twitter":twitter,"instagram":instagram,"end_lat":latitude,"end_long":longitude,"startdate":startdateValue,"enddate":currentdate.toString()}
+        "farmer_loan_waiver":kisanLoan.selections.toString(),"facebook":facebook,"twitter":twitter,"instagram":instagram,"end_lat":latvalue,"end_long":longvalue,"startdate":startdateValue.toString(),"enddate":currentdate.toString()}
     
 
       if (newArray != null || newArray != undefined) {
         newArray.push(allfieldtostore)
         await setfieldDataintoLoacal(newArray);
-          // navigation.navigate('DataButtons')
-        console.log('newArray???????????2', typeof(newArray));
-
       } else {
         dataarray.push(allfieldtostore)
         await setfieldDataintoLoacal(dataarray);
-        console.log('dataarray>>>>>>>>>>>', typeof(dataarray));
-        // navigation.navigate('DataButtons')
       }
       console.log('Data saved successfully.');
       navigation.navigate('DataButtons')
       // getDataLocalData()
      
     } 
-    //   navigation.navigate("");
-    // console.log('countsssssssssssssssss',countData);
-  
     
-  // };
 
-  
-  const saveApiData = async () => {
-    const allfieldtostore = [{
-      user_id: userId, block: block, booth: booth, grampanchayat: grampanchayat, village: village, toll: toll,
-      name: name, fatherName: fatherName, cast: cast, age: age, education: education, mobile: mobile,
-      voterId: voterId, address: address, gender: gender, vehicle: vehicle.selections, group: group, govtEmploye: govtEmploye,
-      party: party, code: code.selections,
-      capturedPhoto: capturedPhoto, nariSamman: nariSamman.selections, kisanLoan: kisanLoan.selections,
-      facebook: facebook, instagram: instagram, twitter: twitter, longitude: longitude, latitude: latitude
-    }]
-    const datalist = allfieldtostore
-    // console.log('datalist/////////////////////>>', datalist);
-    dispatch(FormDetailAction(datalist))
-    // AllExistingDataList()
-    // navigation.navigate('DataButtons')
-  };
 
   const AllExistingDataList = async () => {
     try {
@@ -471,18 +477,7 @@ const dateTimeInfo = {"startdate": currentdate.toString(),"lat":latitude,"long":
 
   }
 
-  // if (deviceFront == null) return <Loader />
-
-
-  const tackPicturefront = async () => {
-    if (cameraRef != null) {
-      const photo = await cameraRef.current.takePhoto()
-      setCapturedPhoto(photo.path)
-      // setTackphotoclickd(false)
-      setModalVisible(!modalVisible)
-    }
-
-  }
+ 
 
   const handleCheckboxChange = (key) => {
     console.log('key>>>>>>>>>>>', key);
@@ -647,34 +642,7 @@ const dateTimeInfo = {"startdate": currentdate.toString(),"lat":latitude,"long":
               {badFather === true && <Text style={{ color: "red", marginLeft: 30 }}>*Required field</Text>}
 
               <Text style={{ top: 20, fontSize: 16, fontWeight: '500', color: 'black', marginLeft: 30 }}> जाति </Text>
-              {/* <TextInputCompo
-                onChangeText={(txt) =>
-                  setCast(txt)
-                }
-                value={cast} /> */}
-              {/* <Dropdown
-          style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
-          placeholderStyle={styles.placeholderStyle}
-          selectedTextStyle={styles.selectedTextStyle}
-          inputSearchStyle={styles.inputSearchStyle}
-          iconStyle={styles.iconStyle}
-          data={[cast]}
-         
-          
-          maxHeight={300}
-          labelField=""
-          valueField=""
-          placeholder={!isFocus ? 'Select Data' : '...'}
-          value={'value'}
-          onFocus={() => setIsFocus(true)}
-          onBlur={() => setIsFocus(false)}
-          onChange={item => {
-            setCast(item);
-            setIsFocus(false);
-            // setBadValue(false)
-          }}
-         
-        /> */}
+              
               <View style={[styles.dropdown]}>
                 <Picker
                   //  style={[styles.dropdown]}
@@ -848,45 +816,7 @@ const dateTimeInfo = {"startdate": currentdate.toString(),"lat":latitude,"long":
                   </>
                 )
               })}
-              {/* 
-              <View>
-
-                <View style={{ flexDirection: 'row', alignItems: "center", marginLeft: 40 }}>
-                  <CheckBox
-                    style={{ flex: 1, padding: 10 }}
-                    onClick={() => {
-                      setIsChecked({...isChecked,twoWheeler: !isChecked.twoWheeler})
-                    }}
-                    isChecked={isChecked.twoWheeler}
-                    rightText={"टू व्हीलर"}
-                  />
-                 
-                </View>
-                <View style={{ flexDirection: 'row', alignItems: "center", marginLeft: 40 }}>
-                  <CheckBox
-                    style={{ flex: 1, padding: 10 }}
-                    onClick={() => {
-                      setIsChecked({...isChecked,fourWheeler: !isChecked.fourWheeler})
-                    }}
-                    isChecked={isChecked.fourWheeler}
-                    rightText={"फोर व्हीलर"}
-                  />
-                 
-                </View>
-                <View style={{ flexDirection: 'row', alignItems: "center", marginLeft: 40 }}>
-                  <CheckBox
-                    style={{ flex: 1, padding: 10 }}
-                    onClick={() => {
-                      setIsChecked({...isChecked,noWheeler: !isChecked.noWheeler})
-                    }}
-                    isChecked={isChecked.noWheeler}
-                    rightText={"कोई वाहन नहीं है"}
-                  />
-                 
-                </View>
-              </View> */}
-
-
+             
               <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
                 <CommonButton
                   title={'Back'}

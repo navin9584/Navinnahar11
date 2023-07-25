@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, Image,Alert } from 'react-native'
+import { Text, View, Image,Alert,PermissionsAndroid } from 'react-native'
 import TextInputCompo from '../ReusableComponent/TextInputCompo';
 import CommonButton from '../ReusableComponent/ButtonCompo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Loader from '../../component/ReusableComponent/Loader';
-import Geolocation from '@react-native-community/geolocation';
+import Geolocation from 'react-native-geolocation-service';
 import {setLoginCred, getLoginCred} from '../localStorage'
 import { LoginAction } from '../../redux/login';
 import { useDispatch, useSelector } from 'react-redux';
@@ -13,6 +13,8 @@ import { checkNetworkConnectivity } from '../localStorage';
 import Axios from 'axios';
 import {FormListApi} from '../../redux/FormListApi';
 import {SearchDataFromListApi} from '../../redux/SearchWithVoterApi';
+
+
 const Login = ({ navigation }) => {
     const data = useSelector(state=> state);
     const loginData = data.loginData.data
@@ -29,11 +31,9 @@ const Login = ({ navigation }) => {
     const [badEmail, setBadEmail] = useState(false)
     const [badPassword, setBadPassword] = useState(false)
     const [modalVisible, setModalVisible] = useState(false);
-    
+  
 
-    Geolocation.getCurrentPosition(info => setLongitude(info.coords.longitude));
-    Geolocation.getCurrentPosition(info => setLatitude(info.coords.latitude));
-    // console.log('altitude>>>>',latitude,longitude);
+
 
     const onpressLogin = async() => {
         let hasNetwork = await checkNetworkConnectivity();
@@ -63,6 +63,7 @@ const Login = ({ navigation }) => {
       };
         const loginApiFunction = async () => {
             let hasNetwork = await checkNetworkConnectivity();
+           
              try{
                const response = await dispatch(LoginAction(requestData))
                console.log('response>>>',response.payload);
@@ -83,9 +84,9 @@ const Login = ({ navigation }) => {
                }
              }catch(error){
                 console.log(error);
-             }
-           
-            
+             
+            }
+               
             
         }
 
@@ -120,14 +121,7 @@ const Login = ({ navigation }) => {
                     textColor={"#fff"}
                     customStyle={{width:'80%',height:50}}
                     onPress={() => onpressLogin()} />
-
-                {/* <Text style={{
-                    textAlign: 'center', marginTop: 20,
-                    fontWeight: '800', fontSize: 18,
-                    textDecorationLine: 'underline'
-                }}
-                    onPress={() => navigation.navigate("Signup")}>Create New Account?</Text> */}
-                    
+    
             </View>
             {/* <Loader modalVisible={modalVisible} setModalVisible={setModalVisible}/> */}
         </View>
